@@ -243,10 +243,10 @@
   </main>
   <script>
     const SUPABASE_URL = 'https://supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhc3FiemxhemNpeXNtZWNta2J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5MDgxOTMsImV4cCI6MjExMDQ4NDE5M30.Ofw8dY0w1Fd0ZpP9Exg8gecfq2cjMern-Y41gNakG7c';
+    const SUPABASE_KEY = 'sb_publishable_5EPRnZi4GIUK0LVGGYtzRw_osHnjeCm';
 
-    const readHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
-    const writeHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' };
+    const readHeaders = { 'apikey': SUPABASE_KEY };
+    const writeHeaders = { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' };
 
     async function checkStorageQuota() {
       try {
@@ -332,7 +332,7 @@
       if (file.size > 50 * 1024 * 1024) throw new Error('File vượt quá 50MB!');
       const safeName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
       const res = await fetch(`${SUPABASE_URL}/storage/v1/object/media/${safeName}`, {
-        method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': file.type || 'application/octet-stream' }, body: file
+        method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Content-Type': file.type || 'application/octet-stream' }, body: file
       });
       if (!res.ok) throw new Error('Lỗi tải lên: ' + await res.text());
       checkStorageQuota();

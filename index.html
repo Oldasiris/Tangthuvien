@@ -513,26 +513,15 @@
     }
         let allSongs = [], activePlaylist = 'Tất cả', filteredSongs = [], currentSongIdx = -1, isMusicPlaying = false;
 
-        function getCleanYtId(rawStr) {
+            function getCleanYtId(rawStr) {
       let s = String(rawStr).replace('YT:', '').trim();
-      if (s.includes('v=')) {
-        s = s.substring(s.indexOf('v=') + 2);
-      } else if (s.includes('youtu.be/')) {
-        s = s.substring(s.indexOf('youtu.be/') + 9);
-      } else if (s.includes('/shorts/')) {
-        s = s.substring(s.indexOf('/shorts/') + 8);
-      } else if (s.includes('/embed/')) {
-        s = s.substring(s.indexOf('/embed/') + 7);
-      }
+      if (s.includes('v=')) s = s.substring(s.indexOf('v=') + 2);
+      else if (s.includes('youtu.be/')) s = s.substring(s.indexOf('youtu.be/') + 9);
+      else if (s.includes('/shorts/')) s = s.substring(s.indexOf('/shorts/') + 8);
       if (s.includes('&')) s = s.substring(0, s.indexOf('&'));
       if (s.includes('?')) s = s.substring(0, s.indexOf('?'));
       if (s.includes('/')) s = s.substring(0, s.indexOf('/'));
       return s.trim();
-    }
-
-    function extractYtId(url) {
-      const id = getCleanYtId(url);
-      return (id && id.length >= 10) ? id : null;
     }
 
     async function loadSongs() {
@@ -561,7 +550,8 @@
       filteredSongs.forEach((s, idx) => {
         const div = document.createElement('div'); div.className = 'song-item';
         const isYt = s.audio_url && (s.audio_url.startsWith('YT:') || s.audio_url.includes('youtu'));
-        const finalLink = isYt ? ('https://youtube.com' + getCleanYtId(s.audio_url)) : s.audio_url;
+        // Nếu đã là link http chuẩn thì giữ nguyên, nếu là mã cũ thì tự ghép lại
+        const finalLink = s.audio_url.startsWith('http') ? s.audio_url : ('https://youtube.com' + getCleanYtId(s.audio_url));
         div.innerHTML = `
           <div style="display:flex; align-items:center; gap:10px; overflow:hidden; flex:1;">
             <button class="music-btn" onclick="playSongAt(${idx})" title="Phát ngay">▶</button>
@@ -571,23 +561,12 @@
             </div>
           </div>
           <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
-            <button class="btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="window.open('${finalLink}', '_blank')">↗ Mở link</button>
+            <a href="${finalLink}" target="_blank" rel="noopener noreferrer" class="btn-outline" style="text-decoration:none; padding:4px 8px; font-size:0.75rem;">↗ Mở link</a>
             <button class="btn-danger" onclick="deleteItem('songs', ${s.id}, loadSongs)">Xóa</button>
           </div>
         `;
         feed.appendChild(div);
       });
-    }
-
-
-    function extractYtId(url) {
-      try {
-        const u = new URL(url);
-        if (u.hostname.includes('youtu.be')) return u.pathname.replace('/', '');
-        if (u.searchParams.get('v')) return u.searchParams.get('v');
-        if (u.pathname.includes('/shorts/') || u.pathname.includes('/embed/')) return u.pathname.split('/').pop();
-      } catch (e) { return null; }
-      return null;
     }
 
     async function addSong() {
@@ -600,9 +579,8 @@
       try {
         let finalUrl = '';
         if (ytUrl) {
-          const ytId = extractYtId(ytUrl);
-          if (!ytId) throw new Error('Link YouTube không hợp lệ!');
-          finalUrl = 'YT:' + ytId;
+          if (!ytUrl.startsWith('http')) throw new Error('Link phải bắt đầu bằng https://');
+          finalUrl = ytUrl; // Lưu thẳng đường link gốc nguyên bản
         } else {
           finalUrl = await uploadFileToCloud(file);
         }

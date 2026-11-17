@@ -7,16 +7,16 @@
   <link href="https://googleapis.com" rel="stylesheet">
   <style>
     :root[data-theme="dark"] {
-      --bg-main: #090d16; --bg-sidebar: #0d1320; --bg-card: #111827;
-      --bg-input: #1f2937; --border: #283548; --primary: #3b82f6;
+      --bg-main: #090d16; --bg-sidebar: #0d1320; --bg-card: rgba(17, 24, 39, 0.85);
+      --bg-input: rgba(31, 41, 55, 0.85); --border: #283548; --primary: #3b82f6;
       --accent: #8b5cf6; --text-main: #f8fafc; --text-muted: #94a3b8;
-      --bg-image: none; --glass: none;
+      --bg-image: none; --glass: blur(12px);
     }
     :root[data-theme="light"] {
-      --bg-main: #f1f5f9; --bg-sidebar: #ffffff; --bg-card: #ffffff;
-      --bg-input: #f8fafc; --border: #cbd5e1; --primary: #2563eb;
+      --bg-main: #f1f5f9; --bg-sidebar: rgba(255, 255, 255, 0.9); --bg-card: rgba(255, 255, 255, 0.85);
+      --bg-input: rgba(248, 250, 252, 0.9); --border: #cbd5e1; --primary: #2563eb;
       --accent: #7c3aed; --text-main: #0f172a; --text-muted: #64748b;
-      --bg-image: none; --glass: none;
+      --bg-image: none; --glass: blur(12px);
     }
     :root[data-theme="anime"] {
       --bg-main: #130b24; --bg-sidebar: rgba(20, 14, 38, 0.78);
@@ -46,7 +46,7 @@
     .theme-btns { display: flex; gap: 5px; }
     .theme-btn { flex: 1; padding: 5px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main); cursor: pointer; }
     .theme-btn.active { border-color: var(--primary); background: var(--primary); color: #fff; }
-    .bg-change-btn { width: 100%; padding: 5px; border-radius: 8px; border: 1px dashed var(--primary); background: rgba(236,72,153,0.12); color: var(--text-main); font-size: 0.75rem; cursor: pointer; display: none; }
+    .bg-change-btn { width: 100%; padding: 6px; border-radius: 8px; border: 1px dashed var(--primary); background: rgba(59,130,246,0.12); color: var(--text-main); font-size: 0.76rem; cursor: pointer; display: block; font-weight: 500; }
     .main-area { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
     .tab-pane { display: none; flex-direction: column; height: 100%; overflow: hidden; }
     .tab-pane.active { display: flex; }
@@ -88,6 +88,7 @@
       .nav-text { display: inline !important; }
       .mini-player { padding: 4px; border: none; background: transparent; }
       .theme-box { padding-top: 0; border-top: none; border-left: 1px solid var(--border); padding-left: 4px; }
+      .bg-change-btn { padding: 3px 5px; font-size: 0.68rem; }
       .main-area { order: 1; height: calc(100dvh - 64px); }
       .scroll-body { padding: 12px; }
     }
@@ -104,7 +105,6 @@
     <button class="nav-item" onclick="openTab('music', this)"><span>🎵</span><span class="nav-text">Kho nhạc</span></button>
     <button class="nav-item" onclick="openTab('chat', this)"><span>💬</span><span class="nav-text">Phòng chat</span></button>
 
-    <!-- Thanh đo giới hạn dung lượng 1GB -->
     <div class="quota-box" title="Dung lượng lưu trữ miễn phí (Tối đa 1GB)">
       <div class="quota-details" style="display:flex; justify-content:space-between;">
         <span>💾 Kho lưu trữ</span>
@@ -113,7 +113,6 @@
       <div class="quota-bar-bg"><div class="quota-bar-fill" id="quotaFill"></div></div>
     </div>
 
-    <!-- Thanh phát nhạc thu nhỏ chạy xuyên suốt -->
     <div class="mini-player">
       <button class="music-btn" id="miniPlayBtn" onclick="toggleMiniPlay()">▶</button>
       <span class="music-title" id="miniSongTitle">Chưa chọn nhạc</span>
@@ -133,7 +132,6 @@
   </aside>
 
   <main class="main-area">
-    <!-- MỤC 1: TƯ LIỆU CÁ NHÂN -->
     <section id="tab-vault" class="tab-pane active">
       <div class="top-bar">
         <h2 id="vaultHeaderTitle">🔒 Tư liệu cá nhân</h2>
@@ -161,7 +159,6 @@
         <div class="media-grid" id="vaultFeed"></div>
       </div>
     </section>
-    <!-- MỤC 2: TÀNG THƯ VIỆN -->
     <section id="tab-library" class="tab-pane">
       <div class="top-bar">
         <h2 id="libHeaderTitle">📚 Tàng thư viện</h2>
@@ -209,7 +206,6 @@
       </div>
     </section>
 
-    <!-- MỤC 3: KHO NHẠC & PLAYLIST -->
     <section id="tab-music" class="tab-pane">
       <div class="top-bar">
         <h2>🎵 Kho nhạc & Playlist</h2>
@@ -231,7 +227,6 @@
       </div>
     </section>
 
-    <!-- MỤC 4: PHÒNG CHAT -->
     <section id="tab-chat" class="tab-pane">
       <div class="top-bar">
         <h2>💬 Phòng chat</h2>
@@ -251,14 +246,13 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhc3FiemxhemNpeXNtZWNta2J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5MDgxOTMsImV4cCI6MjExMDQ4NDE5M30.Ofw8dY0w1Fd0ZpP9Exg8gecfq2cjMern-Y41gNakG7c';
 
     const readHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
-    const writeHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
+    const writeHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' };
 
-    // Đo giới hạn dung lượng Storage (Giới hạn 1GB = 1024MB)
     async function checkStorageQuota() {
       try {
         const res = await fetch(`${SUPABASE_URL}/storage/v1/object/list/media`, {
           method: 'POST',
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+          headers: writeHeaders,
           body: JSON.stringify({ limit: 1000, offset: 0 })
         });
         if (!res.ok) return;
@@ -276,7 +270,7 @@
           fill.classList.add('warn');
           document.getElementById('quotaText').style.color = '#ef4444';
           if (!sessionStorage.getItem('quota_warned')) {
-            alert(`⚠️ Cảnh báo dung lượng: Kho lưu trữ đã dùng ${usedMB}MB (${percent}% giới hạn 1GB miễn phí). Bạn nên xóa bớt video/file cũ để tránh bị đầy!`);
+            alert(`⚠️ Cảnh báo dung lượng: Kho lưu trữ đã dùng ${usedMB}MB (${percent}% giới hạn 1GB miễn phí). Bạn nên xóa bớt video/file cũ!`);
             sessionStorage.setItem('quota_warned', 'true');
           }
         }
@@ -285,13 +279,17 @@
 
     function applyCustomBg() {
       const url = localStorage.getItem('myspace_anime_bg');
-      if (url && document.documentElement.getAttribute('data-theme') === 'anime') {
-        document.documentElement.style.setProperty('--bg-image', `linear-gradient(rgba(15, 10, 30, 0.55), rgba(15, 10, 30, 0.65)), url('${url}')`);
-      } else document.documentElement.style.removeProperty('--bg-image');
+      const theme = document.documentElement.getAttribute('data-theme');
+      if (url) {
+        const overlay = (theme === 'light') ? 'rgba(255, 255, 255, 0.78)' : 'rgba(12, 16, 28, 0.72)';
+        document.documentElement.style.setProperty('--bg-image', `linear-gradient(${overlay}, ${overlay}), url('${url}')`);
+      } else {
+        document.documentElement.style.removeProperty('--bg-image');
+      }
     }
 
     function changeAnimeBg() {
-      const newUrl = prompt('Dán link ảnh nền Anime (để trống để về mặc định):', localStorage.getItem('myspace_anime_bg') || '');
+      const newUrl = prompt('Dán link ảnh nền (để trống để về mặc định):', localStorage.getItem('myspace_anime_bg') || '');
       if (newUrl === null) return;
       if (newUrl.trim()) localStorage.setItem('myspace_anime_bg', newUrl.trim());
       else localStorage.removeItem('myspace_anime_bg');
@@ -303,7 +301,7 @@
       localStorage.setItem('myspace_theme', t);
       document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
       if (document.getElementById('th-' + t)) document.getElementById('th-' + t).classList.add('active');
-      document.getElementById('customBgBtn').style.display = (t === 'anime') ? 'block' : 'none';
+      document.getElementById('customBgBtn').style.display = 'block';
       applyCustomBg();
     }
 
@@ -341,7 +339,6 @@
       return `${SUPABASE_URL}/storage/v1/object/public/media/${safeName}`;
     }
 
-    // 1. Tư liệu riêng
     let currentOwnerKey = '';
     document.getElementById('vaultUser').value = localStorage.getItem('myspace_username') || '';
 
@@ -397,7 +394,6 @@
         loadVault();
       } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = 'Lưu vào kho'; }
     }
-    // 2. Tàng thư viện
     let allBooks = [], activeTag = 'Tất cả', currentBookId = null, bookChapters = [], currentChapIdx = 0;
 
     async function loadLibrary() {
@@ -515,7 +511,6 @@
         loadChapters();
       } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = 'Đăng chương'; }
     }
-    // 3. Kho nhạc & Playlist (Hỗ trợ YouTube 0MB + MP3)
     let allSongs = [], activePlaylist = 'Tất cả', filteredSongs = [], currentSongIdx = -1, isMusicPlaying = false;
 
     async function loadSongs() {
@@ -629,7 +624,6 @@
       if (filteredSongs.length > 0) playSongAt(currentSongIdx + 1);
     }
 
-    // 4. Phòng chat
     document.getElementById('chatSender').value = localStorage.getItem('myspace_username') || '';
     function saveChatName() {
       const name = document.getElementById('chatSender').value.trim();

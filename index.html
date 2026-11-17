@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MySpace Hub Pro</title>
+  <title>MySpace Hub Ultimate</title>
   <link href="https://googleapis.com" rel="stylesheet">
   <style>
     :root[data-theme="dark"] {
@@ -28,27 +28,31 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg-main); background-image: var(--bg-image); background-size: cover; background-position: center; background-attachment: fixed; color: var(--text-main); display: flex; height: 100dvh; overflow: hidden; transition: 0.3s; }
-    .sidebar { width: 245px; background: var(--bg-sidebar); backdrop-filter: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 14px 10px; gap: 6px; flex-shrink: 0; transition: width 0.25s; z-index: 20; }
+    .sidebar { width: 250px; background: var(--bg-sidebar); backdrop-filter: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 14px 10px; gap: 6px; flex-shrink: 0; transition: width 0.25s; z-index: 20; }
     .sidebar.collapsed { width: 70px; }
-    .sidebar.collapsed .nav-text, .sidebar.collapsed .brand-text, .sidebar.collapsed .theme-title, .sidebar.collapsed #customBgBtn, .sidebar.collapsed .music-title { display: none !important; }
-    .brand { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px 14px; border-bottom: 1px solid var(--border); margin-bottom: 4px; font-weight: 700; }
-    .toggle-btn { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 13px; border-radius: 12px; color: var(--text-muted); background: transparent; border: 1px solid transparent; font-size: 0.9rem; cursor: pointer; white-space: nowrap; overflow: hidden; }
+    .sidebar.collapsed .nav-text, .sidebar.collapsed .brand-text, .sidebar.collapsed #customBgBtn, .sidebar.collapsed .music-title, .sidebar.collapsed .quota-details { display: none !important; }
+    .brand { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px 12px; border-bottom: 1px solid var(--border); margin-bottom: 4px; font-weight: 700; }
+    .toggle-btn { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; }
+    .nav-item { display: flex; align-items: center; gap: 11px; padding: 10px 13px; border-radius: 12px; color: var(--text-muted); background: transparent; border: 1px solid transparent; font-size: 0.88rem; cursor: pointer; white-space: nowrap; overflow: hidden; }
     .nav-item.active { background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(236,72,153,0.18)); color: var(--primary); border-color: var(--border); font-weight: 600; }
-    .music-box { background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: auto; }
-    .music-btn { background: var(--primary); color: #fff; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 0.8rem; flex-shrink: 0; }
+    .quota-box { background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; margin-top: auto; font-size: 0.75rem; }
+    .quota-bar-bg { width: 100%; height: 6px; background: rgba(128,128,128,0.25); border-radius: 6px; overflow: hidden; margin-top: 5px; }
+    .quota-bar-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.4s, background 0.4s; }
+    .quota-bar-fill.warn { background: #ef4444; }
+    .mini-player { background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .music-btn { background: var(--primary); color: #fff; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 0.78rem; flex-shrink: 0; }
     .music-title { font-size: 0.78rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
-    .theme-box { padding-top: 8px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+    .theme-box { padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 5px; }
     .theme-btns { display: flex; gap: 5px; }
-    .theme-btn { flex: 1; padding: 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main); cursor: pointer; }
+    .theme-btn { flex: 1; padding: 5px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main); cursor: pointer; }
     .theme-btn.active { border-color: var(--primary); background: var(--primary); color: #fff; }
-    .bg-change-btn { width: 100%; padding: 6px; border-radius: 8px; border: 1px dashed var(--primary); background: rgba(236,72,153,0.12); color: var(--text-main); font-size: 0.76rem; cursor: pointer; display: none; }
+    .bg-change-btn { width: 100%; padding: 5px; border-radius: 8px; border: 1px dashed var(--primary); background: rgba(236,72,153,0.12); color: var(--text-main); font-size: 0.75rem; cursor: pointer; display: none; }
     .main-area { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
     .tab-pane { display: none; flex-direction: column; height: 100%; overflow: hidden; }
     .tab-pane.active { display: flex; }
     .top-bar { padding: 14px 20px; background: var(--bg-card); backdrop-filter: var(--glass); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .scroll-body { flex: 1; overflow-y: auto; padding: 18px 20px; }
-    .box, .book-card, .media-card, .lock-card { background: var(--bg-card); backdrop-filter: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+    .box, .book-card, .media-card, .lock-card, .song-item { background: var(--bg-card); backdrop-filter: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 15px; margin-bottom: 14px; }
     input[type="text"], input[type="password"], textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 10px 13px; border-radius: 10px; font-size: 0.9rem; margin-bottom: 10px; }
     textarea { resize: vertical; min-height: 75px; }
     .row-actions { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
@@ -68,6 +72,7 @@
     .book-title { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; padding-right: 50px; }
     .book-tag { background: rgba(168,85,247,0.18); color: var(--accent); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; margin-right: 5px; display: inline-block; margin-bottom: 6px; }
     .reader-text { font-size: 1rem; line-height: 1.8; white-space: pre-wrap; padding: 10px 0; }
+    .song-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 15px; margin-bottom: 10px; }
     .chat-box { flex: 1; overflow-y: auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
     .chat-msg { max-width: 78%; background: var(--bg-card); backdrop-filter: var(--glass); border: 1px solid var(--border); padding: 9px 13px; border-radius: 15px; align-self: flex-start; }
     .chat-msg.me { background: var(--primary); color: #fff; border-color: var(--primary); align-self: flex-end; }
@@ -77,13 +82,13 @@
     .chat-footer input[type="text"] { margin-bottom: 0; border-radius: 20px; }
     @media (max-width: 768px) {
       body { flex-direction: column; }
-      .sidebar { width: 100% !important; height: 62px; flex-direction: row; padding: 5px 6px; border-right: none; border-top: 1px solid var(--border); order: 2; align-items: center; justify-content: space-between; }
-      .brand, .music-title { display: none !important; }
-      .nav-item { flex: 1; flex-direction: column; gap: 2px; padding: 4px 2px; font-size: 0.7rem; justify-content: center; }
+      .sidebar { width: 100% !important; height: 64px; flex-direction: row; padding: 4px 6px; border-right: none; border-top: 1px solid var(--border); order: 2; align-items: center; justify-content: space-between; }
+      .brand, .music-title, .quota-box { display: none !important; }
+      .nav-item { flex: 1; flex-direction: column; gap: 2px; padding: 4px 2px; font-size: 0.68rem; justify-content: center; }
       .nav-text { display: inline !important; }
-      .music-box { margin-top: 0; padding: 4px; border: none; background: transparent; }
-      .theme-box { padding-top: 0; border-top: none; border-left: 1px solid var(--border); padding-left: 5px; }
-      .main-area { order: 1; height: calc(100dvh - 62px); }
+      .mini-player { padding: 4px; border: none; background: transparent; }
+      .theme-box { padding-top: 0; border-top: none; border-left: 1px solid var(--border); padding-left: 4px; }
+      .main-area { order: 1; height: calc(100dvh - 64px); }
       .scroll-body { padding: 12px; }
     }
   </style>
@@ -91,21 +96,31 @@
 <body>
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <span class="brand-text">⚡ MySpace Pro</span>
+      <span class="brand-text">⚡ MySpace Hub</span>
       <button class="toggle-btn" onclick="toggleMenu()">☰</button>
     </div>
     <button class="nav-item active" onclick="openTab('vault', this)"><span>🔒</span><span class="nav-text">Tư liệu riêng</span></button>
     <button class="nav-item" onclick="openTab('library', this)"><span>📚</span><span class="nav-text">Tàng thư viện</span></button>
+    <button class="nav-item" onclick="openTab('music', this)"><span>🎵</span><span class="nav-text">Kho nhạc</span></button>
     <button class="nav-item" onclick="openTab('chat', this)"><span>💬</span><span class="nav-text">Phòng chat</span></button>
 
-    <!-- Trình phát nhạc Chill -->
-    <div class="music-box">
-      <button class="music-btn" id="musicToggle" onclick="toggleMusic()" title="Bật / Tắt nhạc Chill">▶</button>
-      <span class="music-title" id="musicLabel">Lo-fi Chill Radio</span>
-      <audio id="bgAudio" loop preload="none">
-        <source src="https://pixabay.com" type="audio/mpeg">
-      </audio>
+    <!-- Thanh đo giới hạn dung lượng 1GB -->
+    <div class="quota-box" title="Dung lượng lưu trữ miễn phí (Tối đa 1GB)">
+      <div class="quota-details" style="display:flex; justify-content:space-between;">
+        <span>💾 Kho lưu trữ</span>
+        <span id="quotaText">0 / 1024 MB</span>
+      </div>
+      <div class="quota-bar-bg"><div class="quota-bar-fill" id="quotaFill"></div></div>
     </div>
+
+    <!-- Thanh phát nhạc thu nhỏ chạy xuyên suốt -->
+    <div class="mini-player">
+      <button class="music-btn" id="miniPlayBtn" onclick="toggleMiniPlay()">▶</button>
+      <span class="music-title" id="miniSongTitle">Chưa chọn nhạc</span>
+      <button class="toggle-btn" style="width:26px; height:26px; font-size:0.75rem;" onclick="playNextSong()" title="Bài tiếp">⏭</button>
+    </div>
+    <div id="ytHiddenBox" style="width:0; height:0; overflow:hidden;"></div>
+    <audio id="mp3Player" onended="playNextSong()"></audio>
 
     <div class="theme-box">
       <div class="theme-btns">
@@ -118,7 +133,7 @@
   </aside>
 
   <main class="main-area">
-    <!-- MỤC 1: TƯ LIỆU CÁ NHÂN TÁCH BIỆT TỪNG NGƯỜI -->
+    <!-- MỤC 1: TƯ LIỆU CÁ NHÂN -->
     <section id="tab-vault" class="tab-pane active">
       <div class="top-bar">
         <h2 id="vaultHeaderTitle">🔒 Tư liệu cá nhân</h2>
@@ -128,8 +143,8 @@
         <div class="lock-card">
           <div style="font-size:2.2rem; margin-bottom:8px;">🛡️</div>
           <h3 style="margin-bottom:6px;">Kho lưu trữ riêng biệt</h3>
-          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">Nhập Tên + Mã PIN của riêng bạn để mở hoặc tạo kho mới</p>
-          <input type="text" id="vaultUser" placeholder="Tên tài khoản của bạn...">
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">Nhập Tên + Mã PIN của riêng bạn để mở hoặc tạo kho</p>
+          <input type="text" id="vaultUser" placeholder="Tên tài khoản...">
           <input type="password" id="pinInput" placeholder="Mã PIN bí mật..." onkeypress="if(event.key==='Enter') unlockVault()">
           <button class="btn" style="width:100%;" onclick="unlockVault()">Mở kho của tôi</button>
         </div>
@@ -140,20 +155,18 @@
           <div class="row-actions">
             <label for="vaultFile" class="file-btn" id="vaultFileLabel">📎 Chọn ảnh / video</label>
             <input type="file" id="vaultFile" accept="image/*,video/*" onchange="showName('vaultFile','vaultFileLabel','📎 Chọn ảnh / video')">
-            <button class="btn" id="vaultSaveBtn" onclick="uploadVault()">Lưu vào kho riêng</button>
+            <button class="btn" id="vaultSaveBtn" onclick="uploadVault()">Lưu vào kho</button>
           </div>
         </div>
         <div class="media-grid" id="vaultFeed"></div>
       </div>
     </section>
-    <!-- MỤC 2: TÀNG THƯ VIỆN & TRÌNH ĐỌC TỪNG CHƯƠNG -->
+    <!-- MỤC 2: TÀNG THƯ VIỆN -->
     <section id="tab-library" class="tab-pane">
       <div class="top-bar">
         <h2 id="libHeaderTitle">📚 Tàng thư viện</h2>
         <button class="btn-outline" id="backToBooksBtn" style="display:none;" onclick="closeReader()">← Danh sách truyện</button>
       </div>
-
-      <!-- Giao diện danh sách bộ truyện -->
       <div id="libraryListView" class="scroll-body">
         <div class="box">
           <input type="text" id="bookTitle" placeholder="Tên bộ truyện...">
@@ -169,13 +182,11 @@
         <div class="tag-bar" id="tagFilterBar"></div>
         <div id="libraryFeed"></div>
       </div>
-
-      <!-- Giao diện đọc & thêm từng chương truyện -->
       <div id="chapterReaderView" class="scroll-body" style="display:none;">
         <div class="box">
           <h4 style="margin-bottom:10px; color:var(--primary);">➕ Thêm chương / trang mới</h4>
-          <input type="text" id="chapTitle" placeholder="Tên chương (VD: Chương 1: Khởi đầu)">
-          <textarea id="chapContent" placeholder="Dán nội dung chữ của chương vào đây (hoặc để trống nếu đăng trang ảnh)..."></textarea>
+          <input type="text" id="chapTitle" placeholder="Tên chương (VD: Chương 1)">
+          <textarea id="chapContent" placeholder="Dán nội dung chữ (hoặc để trống nếu đăng trang ảnh)..."></textarea>
           <div class="row-actions">
             <label for="chapImg" class="file-btn" id="chapImgLabel">🖼️ Hoặc chọn trang ảnh truyện</label>
             <input type="file" id="chapImg" accept="image/*" onchange="showName('chapImg','chapImgLabel','🖼️ Hoặc chọn trang ảnh truyện')">
@@ -191,14 +202,36 @@
           <div id="currentChapMedia"></div>
           <div id="currentChapText" class="reader-text"></div>
           <div style="display:flex; justify-content:space-between; margin-top:20px; padding-top:12px; border-top:1px solid var(--border);">
-            <button class="btn-outline" id="prevChapBtn" onclick="navChapter(-1)">← Chương trước</button>
-            <button class="btn-outline" id="nextChapBtn" onclick="navChapter(1)">Chương sau →</button>
+            <button class="btn-outline" onclick="navChapter(-1)">← Chương trước</button>
+            <button class="btn-outline" onclick="navChapter(1)">Chương sau →</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- MỤC 3: PHÒNG CHAT -->
+    <!-- MỤC 3: KHO NHẠC & PLAYLIST -->
+    <section id="tab-music" class="tab-pane">
+      <div class="top-bar">
+        <h2>🎵 Kho nhạc & Playlist</h2>
+        <span id="mobileQuotaBadge" style="font-size:0.75rem; color:var(--text-muted);"></span>
+      </div>
+      <div class="scroll-body">
+        <div class="box">
+          <input type="text" id="songTitle" placeholder="Tên bài hát...">
+          <input type="text" id="songPlaylist" placeholder="Tên Playlist (VD: Anime Chill, Nhạc đọc truyện, Remix)">
+          <input type="text" id="songYtUrl" placeholder="Dán link YouTube (Khuyên dùng - Tốn 0MB dung lượng)...">
+          <div class="row-actions">
+            <label for="songFile" class="file-btn" id="songFileLabel">🎧 Hoặc tải file MP3 lên kho</label>
+            <input type="file" id="songFile" accept="audio/*" onchange="showName('songFile','songFileLabel','🎧 Hoặc tải file MP3 lên kho')">
+            <button class="btn" id="songSaveBtn" onclick="addSong()">Thêm bài hát</button>
+          </div>
+        </div>
+        <div class="tag-bar" id="playlistFilterBar"></div>
+        <div id="songListFeed"></div>
+      </div>
+    </section>
+
+    <!-- MỤC 4: PHÒNG CHAT -->
     <section id="tab-chat" class="tab-pane">
       <div class="top-bar">
         <h2>💬 Phòng chat</h2>
@@ -215,15 +248,39 @@
   </main>
   <script>
     const SUPABASE_URL = 'https://supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_5EPRnZi4GIUK0LVGGYtzRw_osHnjeCm';
-    const headers = { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhc3FiemxhemNpeXNtZWNta2J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5MDgxOTMsImV4cCI6MjExMDQ4NDE5M30.Ofw8dY0w1Fd0ZpP9Exg8gecfq2cjMern-Y41gNakG7c';
 
-    // 1. Trình phát nhạc & Giao diện
-    function toggleMusic() {
-      const audio = document.getElementById('bgAudio');
-      const btn = document.getElementById('musicToggle');
-      if (audio.paused) { audio.play(); btn.textContent = '⏸'; }
-      else { audio.pause(); btn.textContent = '▶'; }
+    const readHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
+    const writeHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
+
+    // Đo giới hạn dung lượng Storage (Giới hạn 1GB = 1024MB)
+    async function checkStorageQuota() {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/list/media`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ limit: 1000, offset: 0 })
+        });
+        if (!res.ok) return;
+        const files = await res.json();
+        let totalBytes = 0;
+        files.forEach(f => { if (f.metadata && f.metadata.size) totalBytes += f.metadata.size; });
+        const usedMB = (totalBytes / (1024 * 1024)).toFixed(1);
+        const percent = Math.min(100, (usedMB / 1024) * 100).toFixed(1);
+
+        document.getElementById('quotaText').textContent = `${usedMB} / 1024 MB`;
+        document.getElementById('mobileQuotaBadge').textContent = `💾 Đã dùng: ${usedMB}MB / 1GB`;
+        const fill = document.getElementById('quotaFill');
+        fill.style.width = percent + '%';
+        if (percent >= 80) {
+          fill.classList.add('warn');
+          document.getElementById('quotaText').style.color = '#ef4444';
+          if (!sessionStorage.getItem('quota_warned')) {
+            alert(`⚠️ Cảnh báo dung lượng: Kho lưu trữ đã dùng ${usedMB}MB (${percent}% giới hạn 1GB miễn phí). Bạn nên xóa bớt video/file cũ để tránh bị đầy!`);
+            sessionStorage.setItem('quota_warned', 'true');
+          }
+        }
+      } catch (e) { console.error('Lỗi đo dung lượng:', e); }
     }
 
     function applyCustomBg() {
@@ -277,20 +334,21 @@
       if (file.size > 50 * 1024 * 1024) throw new Error('File vượt quá 50MB!');
       const safeName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
       const res = await fetch(`${SUPABASE_URL}/storage/v1/object/media/${safeName}`, {
-        method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Content-Type': file.type || 'application/octet-stream' }, body: file
+        method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': file.type || 'application/octet-stream' }, body: file
       });
       if (!res.ok) throw new Error('Lỗi tải lên: ' + await res.text());
+      checkStorageQuota();
       return `${SUPABASE_URL}/storage/v1/object/public/media/${safeName}`;
     }
 
-    // 2. Kho tư liệu tách biệt theo từng tài khoản (Tên + PIN)
+    // 1. Tư liệu riêng
     let currentOwnerKey = '';
     document.getElementById('vaultUser').value = localStorage.getItem('myspace_username') || '';
 
     function unlockVault() {
       const user = document.getElementById('vaultUser').value.trim();
       const pin = document.getElementById('pinInput').value.trim();
-      if (!user || !pin) return alert('Hãy nhập đủ Tên tài khoản và Mã PIN!');
+      if (!user || !pin) return alert('Nhập đủ Tên và Mã PIN!');
       localStorage.setItem('myspace_username', user);
       document.getElementById('chatSender').value = user;
       saveChatName();
@@ -313,14 +371,12 @@
 
     async function loadVault() {
       if (!currentOwnerKey) return;
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?owner=eq.${encodeURIComponent(currentOwnerKey)}&select=*&order=id.desc`, { headers: { 'apikey': SUPABASE_KEY } });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?owner=eq.${encodeURIComponent(currentOwnerKey)}&select=*&order=id.desc`, { headers: readHeaders });
       if (!res.ok) return;
       const data = await res.json();
-      const feed = document.getElementById('vaultFeed');
-      feed.innerHTML = '';
+      const feed = document.getElementById('vaultFeed'); feed.innerHTML = '';
       data.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'media-card';
+        const div = document.createElement('div'); div.className = 'media-card';
         const media = item.media_url ? ((item.media_type && item.media_type.startsWith('video/')) ? `<video src="${item.media_url}" controls playsinline></video>` : `<img src="${item.media_url}" loading="lazy">`) : '';
         div.innerHTML = `${media}${item.content ? `<p style="font-size:0.88rem;">${item.content}</p>` : ''}<div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.72rem; color:var(--text-muted);">${new Date(item.created_at).toLocaleDateString('vi-VN')}</span><button class="btn-danger" onclick="deleteItem('posts', ${item.id}, loadVault)">Xóa</button></div>`;
         feed.appendChild(div);
@@ -331,24 +387,21 @@
       const note = document.getElementById('vaultNote').value.trim();
       const file = document.getElementById('vaultFile').files.item(0);
       if (!note && !file) return alert('Chọn ảnh/video hoặc nhập ghi chú!');
-      const btn = document.getElementById('vaultSaveBtn');
-      btn.disabled = true; btn.textContent = 'Đang lưu...';
+      const btn = document.getElementById('vaultSaveBtn'); btn.disabled = true; btn.textContent = 'Đang lưu...';
       try {
-        let url = null, type = null;
-        if (file) { url = await uploadFileToCloud(file); type = file.type; }
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/posts`, { method: 'POST', headers, body: JSON.stringify({ content: note, media_url: url, media_type: type, owner: currentOwnerKey }) });
+        let url = file ? await uploadFileToCloud(file) : null, type = file ? file.type : null;
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/posts`, { method: 'POST', headers: writeHeaders, body: JSON.stringify({ content: note, media_url: url, media_type: type, owner: currentOwnerKey }) });
         if (!res.ok) throw new Error(await res.text());
         document.getElementById('vaultNote').value = ''; document.getElementById('vaultFile').value = '';
         showName('vaultFile','vaultFileLabel','📎 Chọn ảnh / video');
         loadVault();
-      } catch (e) { alert(e.message); }
-      finally { btn.disabled = false; btn.textContent = 'Lưu vào kho riêng'; }
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = 'Lưu vào kho'; }
     }
-    // 3. Tàng thư viện & Đọc theo chương
+    // 2. Tàng thư viện
     let allBooks = [], activeTag = 'Tất cả', currentBookId = null, bookChapters = [], currentChapIdx = 0;
 
     async function loadLibrary() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/library?select=*&order=id.desc`, { headers: { 'apikey': SUPABASE_KEY } });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/library?select=*&order=id.desc`, { headers: readHeaders });
       if (!res.ok) return;
       allBooks = await res.json();
       renderTags(); renderBooks();
@@ -388,12 +441,12 @@
       const btn = document.getElementById('bookSaveBtn'); btn.disabled = true; btn.textContent = 'Đang tạo...';
       try {
         let fileUrl = file ? await uploadFileToCloud(file) : null;
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/library`, { method: 'POST', headers, body: JSON.stringify({ title, tags, summary, review, file_url: fileUrl }) });
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/library`, { method: 'POST', headers: writeHeaders, body: JSON.stringify({ title, tags, summary, review, file_url: fileUrl }) });
         if (!res.ok) throw new Error(await res.text());
         ['bookTitle','bookTags','bookSummary','bookReview','bookFile'].forEach(id => document.getElementById(id).value = '');
         showName('bookFile','bookFileLabel','🖼️ Ảnh bìa / File đính kèm');
         loadLibrary();
-      } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.textContent = 'Tạo bộ truyện'; }
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = 'Tạo bộ truyện'; }
     }
 
     async function openReader(bookId, title) {
@@ -414,7 +467,7 @@
     }
 
     async function loadChapters() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters?book_id=eq.${currentBookId}&select=*&order=id.asc`, { headers: { 'apikey': SUPABASE_KEY } });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters?book_id=eq.${currentBookId}&select=*&order=id.asc`, { headers: readHeaders });
       if (!res.ok) return;
       bookChapters = await res.json();
       const bar = document.getElementById('chapterListBar'); bar.innerHTML = '';
@@ -454,16 +507,129 @@
       const btn = document.getElementById('chapSaveBtn'); btn.disabled = true; btn.textContent = 'Đang đăng...';
       try {
         if (file) content = 'IMG_URL:' + await uploadFileToCloud(file);
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters`, { method: 'POST', headers, body: JSON.stringify({ book_id: currentBookId, chapter_title: title || ('Chương ' + (bookChapters.length + 1)), content }) });
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters`, { method: 'POST', headers: writeHeaders, body: JSON.stringify({ book_id: currentBookId, chapter_title: title || ('Chương ' + (bookChapters.length + 1)), content }) });
         if (!res.ok) throw new Error(await res.text());
         ['chapTitle','chapContent','chapImg'].forEach(id => document.getElementById(id).value = '');
         showName('chapImg','chapImgLabel','🖼️ Hoặc chọn trang ảnh truyện');
         currentChapIdx = bookChapters.length;
         loadChapters();
-      } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.textContent = 'Đăng chương'; }
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = 'Đăng chương'; }
+    }
+    // 3. Kho nhạc & Playlist (Hỗ trợ YouTube 0MB + MP3)
+    let allSongs = [], activePlaylist = 'Tất cả', filteredSongs = [], currentSongIdx = -1, isMusicPlaying = false;
+
+    async function loadSongs() {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/songs?select=*&order=id.desc`, { headers: readHeaders });
+      if (!res.ok) return;
+      allSongs = await res.json();
+      renderPlaylists(); renderSongs();
     }
 
-    // 4. Phòng chat lưu tên tự động
+    function renderPlaylists() {
+      const pSet = new Set(['Tất cả']);
+      allSongs.forEach(s => { if (s.playlist_name && s.playlist_name.trim()) pSet.add(s.playlist_name.trim()); });
+      const bar = document.getElementById('playlistFilterBar'); bar.innerHTML = '';
+      pSet.forEach(pl => {
+        const chip = document.createElement('button');
+        chip.className = 'tag-chip' + (activePlaylist === pl ? ' active' : '');
+        chip.textContent = '🎧 ' + pl;
+        chip.onclick = () => { activePlaylist = pl; renderPlaylists(); renderSongs(); };
+        bar.appendChild(chip);
+      });
+    }
+
+    function renderSongs() {
+      const feed = document.getElementById('songListFeed'); feed.innerHTML = '';
+      filteredSongs = activePlaylist === 'Tất cả' ? allSongs : allSongs.filter(s => s.playlist_name && s.playlist_name.trim() === activePlaylist);
+      filteredSongs.forEach((s, idx) => {
+        const div = document.createElement('div'); div.className = 'song-item';
+        const isYt = s.audio_url && s.audio_url.startsWith('YT:');
+        div.innerHTML = `
+          <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+            <button class="music-btn" onclick="playSongAt(${idx})">▶</button>
+            <div style="overflow:hidden;">
+              <div style="font-weight:600; font-size:0.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${s.title}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${s.playlist_name || 'Chung'} • ${isYt ? 'YouTube (0MB)' : 'MP3 Cloud'}</div>
+            </div>
+          </div>
+          <button class="btn-danger" onclick="deleteItem('songs', ${s.id}, loadSongs)">Xóa</button>
+        `;
+        feed.appendChild(div);
+      });
+    }
+
+    function extractYtId(url) {
+      const m = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+      return m ? m : null;
+    }
+
+    async function addSong() {
+      const title = document.getElementById('songTitle').value.trim();
+      const playlist = document.getElementById('songPlaylist').value.trim() || 'Chung';
+      const ytUrl = document.getElementById('songYtUrl').value.trim();
+      const file = document.getElementById('songFile').files.item(0);
+      if (!title || (!ytUrl && !file)) return alert('Nhập tên bài hát và dán link YouTube hoặc chọn file MP3!');
+      const btn = document.getElementById('songSaveBtn'); btn.disabled = true; btn.textContent = 'Đang thêm...';
+      try {
+        let finalUrl = '';
+        if (ytUrl) {
+          const ytId = extractYtId(ytUrl);
+          if (!ytId) throw new Error('Link YouTube không hợp lệ!');
+          finalUrl = 'YT:' + ytId;
+        } else {
+          finalUrl = await uploadFileToCloud(file);
+        }
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/songs`, { method: 'POST', headers: writeHeaders, body: JSON.stringify({ title, playlist_name: playlist, audio_url: finalUrl }) });
+        if (!res.ok) throw new Error(await res.text());
+        ['songTitle','songYtUrl','songFile'].forEach(id => document.getElementById(id).value = '');
+        showName('songFile','songFileLabel','🎧 Hoặc tải file MP3 lên kho');
+        loadSongs();
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = 'Thêm bài hát'; }
+    }
+
+    function playSongAt(idx) {
+      if (filteredSongs.length === 0) return;
+      currentSongIdx = (idx + filteredSongs.length) % filteredSongs.length;
+      const song = filteredSongs[currentSongIdx];
+      const mp3 = document.getElementById('mp3Player');
+      const ytBox = document.getElementById('ytHiddenBox');
+
+      mp3.pause(); mp3.src = ''; ytBox.innerHTML = '';
+      document.getElementById('miniSongTitle').textContent = '🎵 ' + song.title;
+      document.getElementById('miniPlayBtn').textContent = '⏸';
+      isMusicPlaying = true;
+
+      if (song.audio_url.startsWith('YT:')) {
+        const ytId = song.audio_url.replace('YT:', '');
+        ytBox.innerHTML = `<iframe width="10" height="10" src="https://youtube.com{ytId}?autoplay=1&loop=1&playlist=${ytId}" allow="autoplay"></iframe>`;
+      } else {
+        mp3.src = song.audio_url;
+        mp3.play();
+      }
+    }
+
+    function toggleMiniPlay() {
+      if (currentSongIdx === -1 && filteredSongs.length > 0) return playSongAt(0);
+      if (currentSongIdx === -1) return alert('Chưa có bài hát nào trong Playlist!');
+      const song = filteredSongs[currentSongIdx];
+      const mp3 = document.getElementById('mp3Player');
+      const ytBox = document.getElementById('ytHiddenBox');
+
+      if (isMusicPlaying) {
+        if (song.audio_url.startsWith('YT:')) ytBox.innerHTML = '';
+        else mp3.pause();
+        document.getElementById('miniPlayBtn').textContent = '▶';
+        isMusicPlaying = false;
+      } else {
+        playSongAt(currentSongIdx);
+      }
+    }
+
+    function playNextSong() {
+      if (filteredSongs.length > 0) playSongAt(currentSongIdx + 1);
+    }
+
+    // 4. Phòng chat
     document.getElementById('chatSender').value = localStorage.getItem('myspace_username') || '';
     function saveChatName() {
       const name = document.getElementById('chatSender').value.trim();
@@ -473,7 +639,7 @@
 
     let lastChatLen = 0;
     async function loadChat() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/messages?select=*&order=id.asc`, { headers: { 'apikey': SUPABASE_KEY } });
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/messages?select=*&order=id.asc`, { headers: readHeaders });
       if (!res.ok) return;
       const data = await res.json();
       if (data.length === lastChatLen) return;
@@ -498,7 +664,7 @@
       const btn = document.getElementById('chatSendBtn'); btn.disabled = true;
       try {
         let imgUrl = file ? await uploadFileToCloud(file) : null;
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/messages`, { method: 'POST', headers, body: JSON.stringify({ sender, text, image_url: imgUrl }) });
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/messages`, { method: 'POST', headers: writeHeaders, body: JSON.stringify({ sender, text, image_url: imgUrl }) });
         if (!res.ok) throw new Error(await res.text());
         textInp.value = ''; imgInp.value = ''; showName('chatImg','chatImgLabel','🖼️');
         loadChat();
@@ -507,11 +673,11 @@
 
     async function deleteItem(table, id, reloadFn) {
       if (!confirm('Xác nhận xóa?')) return;
-      await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, { method: 'DELETE', headers });
-      reloadFn();
+      await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, { method: 'DELETE', headers: writeHeaders });
+      reloadFn(); checkStorageQuota();
     }
 
-    loadLibrary(); loadChat(); setInterval(loadChat, 2500);
+    checkStorageQuota(); loadLibrary(); loadSongs(); loadChat(); setInterval(loadChat, 2500);
   </script>
 </body>
 </html>

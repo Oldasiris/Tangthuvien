@@ -557,11 +557,11 @@
       });
     }
 
-        function extractYtId(url) {
+            function extractYtId(url) {
       try {
         const u = new URL(url);
         if (u.hostname.includes('youtu.be')) {
-          return u.pathname.slice(1).split('?');
+          return u.pathname.replace('/', '');
         }
         if (u.searchParams.get('v')) {
           return u.searchParams.get('v');
@@ -574,6 +574,7 @@
       }
       return null;
     }
+
 
 
     async function addSong() {

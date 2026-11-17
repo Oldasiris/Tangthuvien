@@ -557,10 +557,24 @@
       });
     }
 
-    function extractYtId(url) {
-      const m = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-      return m ? m : null;
+        function extractYtId(url) {
+      try {
+        const u = new URL(url);
+        if (u.hostname.includes('youtu.be')) {
+          return u.pathname.slice(1).split('?');
+        }
+        if (u.searchParams.get('v')) {
+          return u.searchParams.get('v');
+        }
+        if (u.pathname.includes('/shorts/') || u.pathname.includes('/embed/')) {
+          return u.pathname.split('/').pop();
+        }
+      } catch (e) {
+        return null;
+      }
+      return null;
     }
+
 
     async function addSong() {
       const title = document.getElementById('songTitle').value.trim();

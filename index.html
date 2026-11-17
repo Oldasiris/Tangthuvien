@@ -533,21 +533,25 @@
       });
     }
 
-    function renderSongs() {
+        function renderSongs() {
       const feed = document.getElementById('songListFeed'); feed.innerHTML = '';
       filteredSongs = activePlaylist === 'Tất cả' ? allSongs : allSongs.filter(s => s.playlist_name && s.playlist_name.trim() === activePlaylist);
       filteredSongs.forEach((s, idx) => {
         const div = document.createElement('div'); div.className = 'song-item';
         const isYt = s.audio_url && s.audio_url.startsWith('YT:');
+        const ytLink = isYt ? `https://youtube.com{s.audio_url.replace('YT:', '')}` : s.audio_url;
         div.innerHTML = `
-          <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
-            <button class="music-btn" onclick="playSongAt(${idx})">▶</button>
-            <div style="overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:10px; overflow:hidden; flex:1;">
+            <button class="music-btn" onclick="playSongAt(${idx})" title="Phát ngay">▶</button>
+            <div style="overflow:hidden; flex:1;">
               <div style="font-weight:600; font-size:0.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${s.title}</div>
               <div style="font-size:0.75rem; color:var(--text-muted);">${s.playlist_name || 'Chung'} • ${isYt ? 'YouTube (0MB)' : 'MP3 Cloud'}</div>
             </div>
           </div>
-          <button class="btn-danger" onclick="deleteItem('songs', ${s.id}, loadSongs)">Xóa</button>
+          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+            <a href="${ytLink}" target="_blank" class="btn-outline" style="text-decoration:none; padding:4px 8px; font-size:0.75rem;">↗ Mở link</a>
+            <button class="btn-danger" onclick="deleteItem('songs', ${s.id}, loadSongs)">Xóa</button>
+          </div>
         `;
         feed.appendChild(div);
       });
@@ -590,13 +594,19 @@
       const ytBox = document.getElementById('ytHiddenBox');
 
       mp3.pause(); mp3.src = ''; ytBox.innerHTML = '';
+      ytBox.style = 'width:0; height:0; overflow:hidden;';
       document.getElementById('miniSongTitle').textContent = '🎵 ' + song.title;
       document.getElementById('miniPlayBtn').textContent = '⏸';
       isMusicPlaying = true;
 
       if (song.audio_url.startsWith('YT:')) {
         const ytId = song.audio_url.replace('YT:', '');
-        ytBox.innerHTML = `<iframe width="10" height="10" src="https://youtube.com{ytId}?autoplay=1&loop=1&playlist=${ytId}" allow="autoplay"></iframe>`;
+        // Hiện khung phát YouTube nhỏ gọn ở góc phải dưới để bấm Play không bị Chrome chặn
+        ytBox.style = 'position:fixed; bottom:72px; right:14px; width:260px; height:150px; z-index:99; border-radius:12px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6); border:1px solid var(--primary); background:#000;';
+        ytBox.innerHTML = `
+          <button onclick="toggleMiniPlay()" style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.75); color:#fff; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; z-index:10;">✕</button>
+          <iframe width="100%" height="100%" src="https://youtube.com{ytId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        `;
       } else {
         mp3.src = song.audio_url;
         mp3.play();
@@ -611,14 +621,17 @@
       const ytBox = document.getElementById('ytHiddenBox');
 
       if (isMusicPlaying) {
-        if (song.audio_url.startsWith('YT:')) ytBox.innerHTML = '';
-        else mp3.pause();
+        if (song.audio_url.startsWith('YT:')) {
+          ytBox.innerHTML = '';
+          ytBox.style = 'width:0; height:0; overflow:hidden;';
+        } else mp3.pause();
         document.getElementById('miniPlayBtn').textContent = '▶';
         isMusicPlaying = false;
       } else {
         playSongAt(currentSongIdx);
       }
     }
+
 
     function playNextSong() {
       if (filteredSongs.length > 0) playSongAt(currentSongIdx + 1);

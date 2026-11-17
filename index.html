@@ -23,7 +23,7 @@
       --bg-card: rgba(26, 18, 48, 0.72); --bg-input: rgba(38, 27, 68, 0.75);
       --border: rgba(244, 114, 182, 0.35); --primary: #ec4899;
       --accent: #a855f7; --text-main: #fdf2f8; --text-muted: #f9a8d4;
-      --bg-image: linear-gradient(rgba(15, 10, 30, 0.65), rgba(15, 10, 30, 0.75)), url('https://unsplash.com');
+      --bg-image: linear-gradient(rgba(15, 10, 30, 0.6), rgba(15, 10, 30, 0.7)), url('https://unsplash.com');
       --glass: blur(14px);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -38,7 +38,7 @@
       padding: 16px 12px; gap: 8px; flex-shrink: 0; transition: width 0.25s; z-index: 20;
     }
     .sidebar.collapsed { width: 72px; }
-    .sidebar.collapsed .nav-text, .sidebar.collapsed .brand-text, .sidebar.collapsed .theme-title { display: none; }
+    .sidebar.collapsed .nav-text, .sidebar.collapsed .brand-text, .sidebar.collapsed .theme-title, .sidebar.collapsed #customBgBtn { display: none !important; }
     .brand { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px 16px; border-bottom: 1px solid var(--border); margin-bottom: 6px; font-weight: 700; }
     .toggle-btn { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; }
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; color: var(--text-muted); background: transparent; border: 1px solid transparent; font-size: 0.92rem; cursor: pointer; white-space: nowrap; overflow: hidden; }
@@ -48,6 +48,7 @@
     .theme-btns { display: flex; gap: 6px; justify-content: center; }
     .theme-btn { flex: 1; padding: 7px 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main); cursor: pointer; }
     .theme-btn.active { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .bg-change-btn { width: 100%; padding: 7px; border-radius: 8px; border: 1px dashed var(--primary); background: rgba(236,72,153,0.12); color: var(--text-main); font-size: 0.78rem; cursor: pointer; margin-top: 4px; display: none; }
     .main-area { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
     .tab-pane { display: none; flex-direction: column; height: 100%; overflow: hidden; }
     .tab-pane.active { display: flex; }
@@ -89,6 +90,7 @@
       .nav-item { flex: 1; flex-direction: column; gap: 2px; padding: 6px 2px; font-size: 0.72rem; justify-content: center; }
       .nav-text { display: inline !important; }
       .theme-box { margin-top: 0; padding-top: 0; border-top: none; border-left: 1px solid var(--border); padding-left: 6px; }
+      .bg-change-btn { padding: 4px 6px; font-size: 0.7rem; margin-top: 2px; }
       .main-area { order: 1; height: calc(100dvh - 64px); }
       .scroll-body { padding: 14px; }
     }
@@ -110,6 +112,7 @@
         <button class="theme-btn" id="th-light" onclick="setTheme('light')">☀️</button>
         <button class="theme-btn" id="th-anime" onclick="setTheme('anime')">🌸</button>
       </div>
+      <button class="bg-change-btn" id="customBgBtn" onclick="changeAnimeBg()">🖼️ Đổi ảnh nền</button>
     </div>
   </aside>
 
@@ -122,9 +125,8 @@
       <div id="vaultLockScreen" class="lock-screen">
         <div class="lock-card">
           <div style="font-size:2.4rem; margin-bottom:10px;">🛡️</div>
-          <h3 style="margin-bottom:6px;">Khu vực bảo mật</h3>
-          <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:16px;">Nhập mã PIN (Mặc định: 1234)</p>
-          <input type="password" id="pinInput" placeholder="Nhập mã PIN..." onkeypress="if(event.key==='Enter') unlockVault()">
+          <h3 style="margin-bottom:14px;">Khu vực bảo mật</h3>
+          <input type="password" id="pinInput" placeholder="Nhập mã truy cập..." onkeypress="if(event.key==='Enter') unlockVault()">
           <button class="btn" style="width:100%;" onclick="unlockVault()">Mở khóa</button>
         </div>
       </div>
@@ -181,12 +183,32 @@
 
     const headers = { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
 
+    function applyCustomBg() {
+      const customUrl = localStorage.getItem('myspace_anime_bg');
+      if (customUrl && document.documentElement.getAttribute('data-theme') === 'anime') {
+        document.documentElement.style.setProperty('--bg-image', `linear-gradient(rgba(15, 10, 30, 0.55), rgba(15, 10, 30, 0.65)), url('${customUrl}')`);
+      } else {
+        document.documentElement.style.removeProperty('--bg-image');
+      }
+    }
+
+    function changeAnimeBg() {
+      const current = localStorage.getItem('myspace_anime_bg') || '';
+      const newUrl = prompt('Dán đường link (URL) hình nền Anime của bạn vào đây (để trống để về mặc định):', current);
+      if (newUrl === null) return;
+      if (newUrl.trim()) localStorage.setItem('myspace_anime_bg', newUrl.trim());
+      else localStorage.removeItem('myspace_anime_bg');
+      applyCustomBg();
+    }
+
     function setTheme(themeName) {
       document.documentElement.setAttribute('data-theme', themeName);
       localStorage.setItem('myspace_theme', themeName);
       document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
       const btn = document.getElementById('th-' + themeName);
       if (btn) btn.classList.add('active');
+      document.getElementById('customBgBtn').style.display = (themeName === 'anime') ? 'block' : 'none';
+      applyCustomBg();
     }
 
     function toggleMenu() {
@@ -207,11 +229,12 @@
     }
 
     function showName(inputId, labelId, defaultText) {
-      const inp = document.getElementById(inputId);
-      document.getElementById(labelId).textContent = (inp.files && inp.files) ? ('✅ ' + inp.files.name) : defaultText;
+      const file = document.getElementById(inputId).files.item(0);
+      document.getElementById(labelId).textContent = file ? ('✅ ' + file.name) : defaultText;
     }
 
     async function uploadFileToCloud(file) {
+      if (!file || !file.name) throw new Error('Không đọc được tệp!');
       if (file.size > 50 * 1024 * 1024) throw new Error('File vượt quá 50MB!');
       const safeName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
       const res = await fetch(`${SUPABASE_URL}/storage/v1/object/media/${safeName}`, {
@@ -228,7 +251,7 @@
         document.getElementById('lockBtn').style.display = 'inline-block';
         document.getElementById('pinInput').value = '';
         loadVault();
-      } else alert('Sai mã PIN!');
+      } else alert('Sai mã truy cập!');
     }
 
     function lockVault() {
@@ -254,7 +277,7 @@
 
     async function uploadVault() {
       const note = document.getElementById('vaultNote').value.trim();
-      const file = document.getElementById('vaultFile').files;
+      const file = document.getElementById('vaultFile').files.item(0);
       if (!note && !file) return alert('Chọn ảnh/video hoặc nhập ghi chú!');
       const btn = document.getElementById('vaultSaveBtn');
       btn.disabled = true; btn.textContent = 'Đang lưu...';
@@ -310,7 +333,7 @@
       const tags = document.getElementById('bookTags').value.trim();
       const summary = document.getElementById('bookSummary').value.trim();
       const review = document.getElementById('bookReview').value.trim();
-      const file = document.getElementById('bookFile').files;
+      const file = document.getElementById('bookFile').files.item(0);
       if (!title) return alert('Hãy nhập tên truyện!');
       const btn = document.getElementById('bookSaveBtn');
       btn.disabled = true; btn.textContent = 'Đang lưu...';
@@ -353,7 +376,7 @@
       const textInp = document.getElementById('chatText');
       const imgInp = document.getElementById('chatImg');
       const text = textInp.value.trim();
-      const file = imgInp.files;
+      const file = imgInp.files.item(0);
       if (!text && !file) return;
       const btn = document.getElementById('chatSendBtn');
       btn.disabled = true;

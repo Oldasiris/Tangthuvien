@@ -511,7 +511,13 @@
         loadChapters();
       } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = 'Đăng chương'; }
     }
-    let allSongs = [], activePlaylist = 'Tất cả', filteredSongs = [], currentSongIdx = -1, isMusicPlaying = false;
+        let allSongs = [], activePlaylist = 'Tất cả', filteredSongs = [], currentSongIdx = -1, isMusicPlaying = false;
+
+    function getCleanYtId(rawStr) {
+      const clean = rawStr.replace('YT:', '').trim();
+      const idMatch = clean.match(/[a-zA-Z0-9_-]{11}/);
+      return idMatch ? idMatch : clean;
+    }
 
     async function loadSongs() {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/songs?select=*&order=id.desc`, { headers: readHeaders });
@@ -533,17 +539,13 @@
       });
     }
 
-            function renderSongs() {
-      const feed = document.getElementById('songListFeed'); 
-      feed.innerHTML = '';
+    function renderSongs() {
+      const feed = document.getElementById('songListFeed'); feed.innerHTML = '';
       filteredSongs = activePlaylist === 'Tất cả' ? allSongs : allSongs.filter(s => s.playlist_name && s.playlist_name.trim() === activePlaylist);
-      
       filteredSongs.forEach((s, idx) => {
-        const div = document.createElement('div'); 
-        div.className = 'song-item';
-        const isYt = s.audio_url && s.audio_url.startsWith('YT:');
-        const cleanUrl = isYt ? ('https://youtube.com' + s.audio_url.replace('YT:', '')) : s.audio_url;
-
+        const div = document.createElement('div'); div.className = 'song-item';
+        const isYt = s.audio_url && (s.audio_url.startsWith('YT:') || s.audio_url.includes('youtu'));
+        const finalLink = isYt ? ('https://youtube.com' + getCleanYtId(s.audio_url)) : s.audio_url;
         div.innerHTML = `
           <div style="display:flex; align-items:center; gap:10px; overflow:hidden; flex:1;">
             <button class="music-btn" onclick="playSongAt(${idx})" title="Phát ngay">▶</button>
@@ -553,7 +555,7 @@
             </div>
           </div>
           <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
-            <button class="btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="window.open('${cleanUrl}', '_blank')">↗ Mở link</button>
+            <button class="btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="window.open('${finalLink}', '_blank')">↗ Mở link</button>
             <button class="btn-danger" onclick="deleteItem('songs', ${s.id}, loadSongs)">Xóa</button>
           </div>
         `;
@@ -577,39 +579,23 @@
       const ytUrl = document.getElementById('songYtUrl').value.trim();
       const file = document.getElementById('songFile').files.item(0);
       if (!title || (!ytUrl && !file)) return alert('Nhập tên bài hát và dán link YouTube hoặc chọn file MP3!');
-      
-      const btn = document.getElementById('songSaveBtn'); 
-      btn.disabled = true; 
-      btn.textContent = 'Đang thêm...';
-      
+      const btn = document.getElementById('songSaveBtn'); btn.disabled = true; btn.textContent = 'Đang thêm...';
       try {
         let finalUrl = '';
         if (ytUrl) {
           const ytId = extractYtId(ytUrl);
-          if (!ytId) throw new Error('Link YouTube không hợp lệ! Hãy copy đúng link có chữ youtube.com hoặc youtu.be');
+          if (!ytId) throw new Error('Link YouTube không hợp lệ!');
           finalUrl = 'YT:' + ytId;
         } else {
           finalUrl = await uploadFileToCloud(file);
         }
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/songs`, { 
-          method: 'POST', 
-          headers: writeHeaders, 
-          body: JSON.stringify({ title, playlist_name: playlist, audio_url: finalUrl }) 
-        });
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/songs`, { method: 'POST', headers: writeHeaders, body: JSON.stringify({ title, playlist_name: playlist, audio_url: finalUrl }) });
         if (!res.ok) throw new Error(await res.text());
-        document.getElementById('songTitle').value = '';
-        document.getElementById('songYtUrl').value = '';
-        document.getElementById('songFile').value = '';
+        ['songTitle','songYtUrl','songFile'].forEach(id => document.getElementById(id).value = '');
         showName('songFile','songFileLabel','🎧 Hoặc tải file MP3 lên kho');
         loadSongs();
-      } catch (e) { 
-        alert('Lỗi: ' + e.message); 
-      } finally { 
-        btn.disabled = false; 
-        btn.textContent = 'Thêm bài hát'; 
-      }
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = 'Thêm bài hát'; }
     }
-
 
     function playSongAt(idx) {
       if (filteredSongs.length === 0) return;
@@ -624,9 +610,9 @@
       document.getElementById('miniPlayBtn').textContent = '⏸';
       isMusicPlaying = true;
 
-      if (song.audio_url.startsWith('YT:')) {
-        const ytId = song.audio_url.replace('YT:', '');
-        // Hiện khung phát YouTube nhỏ gọn ở góc phải dưới để bấm Play không bị Chrome chặn
+      const isYt = song.audio_url && (song.audio_url.startsWith('YT:') || song.audio_url.includes('youtu'));
+      if (isYt) {
+        const ytId = getCleanYtId(song.audio_url);
         ytBox.style = 'position:fixed; bottom:72px; right:14px; width:260px; height:150px; z-index:99; border-radius:12px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6); border:1px solid var(--primary); background:#000;';
         ytBox.innerHTML = `
           <button onclick="toggleMiniPlay()" style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.75); color:#fff; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; z-index:10;">✕</button>
@@ -656,7 +642,6 @@
         playSongAt(currentSongIdx);
       }
     }
-
 
     function playNextSong() {
       if (filteredSongs.length > 0) playSongAt(currentSongIdx + 1);

@@ -513,10 +513,26 @@
     }
         let allSongs = [], activePlaylist = 'Tất cả', filteredSongs = [], currentSongIdx = -1, isMusicPlaying = false;
 
-    function getCleanYtId(rawStr) {
-      const clean = rawStr.replace('YT:', '').trim();
-      const idMatch = clean.match(/[a-zA-Z0-9_-]{11}/);
-      return idMatch ? idMatch : clean;
+        function getCleanYtId(rawStr) {
+      let s = String(rawStr).replace('YT:', '').trim();
+      if (s.includes('v=')) {
+        s = s.substring(s.indexOf('v=') + 2);
+      } else if (s.includes('youtu.be/')) {
+        s = s.substring(s.indexOf('youtu.be/') + 9);
+      } else if (s.includes('/shorts/')) {
+        s = s.substring(s.indexOf('/shorts/') + 8);
+      } else if (s.includes('/embed/')) {
+        s = s.substring(s.indexOf('/embed/') + 7);
+      }
+      if (s.includes('&')) s = s.substring(0, s.indexOf('&'));
+      if (s.includes('?')) s = s.substring(0, s.indexOf('?'));
+      if (s.includes('/')) s = s.substring(0, s.indexOf('/'));
+      return s.trim();
+    }
+
+    function extractYtId(url) {
+      const id = getCleanYtId(url);
+      return (id && id.length >= 10) ? id : null;
     }
 
     async function loadSongs() {
@@ -562,6 +578,7 @@
         feed.appendChild(div);
       });
     }
+
 
     function extractYtId(url) {
       try {

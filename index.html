@@ -2,57 +2,284 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kho Lưu Trữ & Chat Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CloudVault & LiveChat</title>
+  <link rel="preconnect" href="https://googleapis.com">
+  <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-    body { background: #121212; color: #e0e0e0; display: flex; height: 100vh; overflow: hidden; }
-    .storage-section { flex: 2; padding: 20px; overflow-y: auto; border-right: 1px solid #2c2c2c; }
-    h2 { margin-bottom: 15px; color: #4da6ff; font-size: 1.3rem; }
-    .upload-box { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; }
-    textarea { width: 100%; height: 80px; background: #2a2a2a; color: #fff; border: 1px solid #444; border-radius: 6px; padding: 10px; resize: none; margin-bottom: 10px; }
-    .controls { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
-    button { background: #4da6ff; color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    button:disabled { background: #555; cursor: not-allowed; }
-    .feed { display: flex; flex-direction: column; gap: 15px; }
-    .card { background: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #2c2c2c; position: relative; }
-    .card p { white-space: pre-wrap; line-height: 1.5; margin-bottom: 10px; }
-    .card img, .card video { max-width: 100%; max-height: 400px; border-radius: 8px; display: block; margin-top: 8px; }
-    .card .time { font-size: 0.75rem; color: #888; margin-top: 8px; display: block; }
-    .delete-btn { position: absolute; top: 12px; right: 12px; background: #ff4d4d; color: white; padding: 4px 8px; font-size: 0.75rem; }
-    .chat-section { flex: 1; display: flex; flex-direction: column; background: #181818; min-width: 300px; }
-    .chat-header { padding: 15px 20px; background: #1e1e1e; border-bottom: 1px solid #2c2c2c; font-weight: bold; color: #4da6ff; }
-    .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-    .msg { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 0.95rem; background: #2a2a2a; color: #fff; align-self: flex-start; }
-    .chat-input-area { padding: 15px; background: #1e1e1e; border-top: 1px solid #2c2c2c; display: flex; gap: 10px; }
-    .chat-input-area input { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #444; background: #2a2a2a; color: #fff; }
+    :root {
+      --bg-main: #0b0f19;
+      --bg-card: #131826;
+      --bg-input: #1c2235;
+      --border: #262f47;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+    body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100dvh; overflow: hidden; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a344d; border-radius: 10px; }
+
+    .storage-section { flex: 1.6; display: flex; flex-direction: column; border-right: 1px solid var(--border); height: 100%; }
+    .chat-section { flex: 1; display: flex; flex-direction: column; background: #0e1320; min-width: 340px; height: 100%; }
+
+    .section-header {
+      padding: 16px 24px;
+      background: rgba(19, 24, 38, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .section-header h2 { font-size: 1.05rem; font-weight: 600; display: flex; align-items: center; gap: 8px; color: #fff; }
+    .badge { font-size: 0.7rem; background: rgba(59, 130, 246, 0.15); color: #60a5fa; padding: 3px 8px; border-radius: 20px; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+    .storage-content { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .upload-box {
+      background: var(--bg-card);
+      padding: 16px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+    textarea {
+      width: 100%;
+      height: 85px;
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      resize: none;
+      margin-bottom: 12px;
+      transition: 0.2s;
+    }
+    textarea:focus { outline: none; border-color: var(--primary); background: #20273c; }
+
+    .controls { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .file-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-input);
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: 1px dashed #3b4766;
+      transition: 0.2s;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-label:hover { border-color: var(--primary); color: #fff; }
+    input[type="file"] { display: none; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(59, 130, 246, 0.45); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .feed { display: flex; flex-direction: column; gap: 16px; padding-bottom: 20px; }
+    .card {
+      background: var(--bg-card);
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      position: relative;
+      transition: 0.2s;
+      animation: fadeIn 0.3s ease;
+    }
+    .card:hover { border-color: #364363; }
+    .card p { white-space: pre-wrap; line-height: 1.6; font-size: 0.95rem; color: #e2e8f0; margin-bottom: 10px; padding-right: 45px; }
+    .card img, .card video { width: 100%; max-height: 450px; object-fit: contain; background: #080b12; border-radius: 12px; display: block; margin-top: 8px; border: 1px solid #1e263b; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+    .time { font-size: 0.75rem; color: var(--text-muted); }
+    .delete-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(239, 68, 68, 0.12);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .delete-btn:hover { background: var(--danger); color: #fff; }
+
+    .chat-messages { flex: 1; padding: 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+    .msg-group { display: flex; flex-direction: column; align-items: flex-start; max-width: 82%; animation: fadeIn 0.25s ease; }
+    .msg {
+      padding: 10px 14px;
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      font-size: 0.93rem;
+      line-height: 1.45;
+      background: var(--bg-input);
+      color: #f1f5f9;
+      border: 1px solid var(--border);
+      word-break: break-word;
+    }
+    .msg-time { font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; padding-left: 4px; }
+
+    .chat-input-area {
+      padding: 14px 18px;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .chat-input-area input {
+      flex: 1;
+      padding: 11px 15px;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: #fff;
+      font-size: 0.93rem;
+      transition: 0.2s;
+    }
+    .chat-input-area input:focus { outline: none; border-color: var(--primary); }
+    .btn-send {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-send:hover { background: var(--primary-hover); transform: scale(1.05); }
+
+    .mobile-nav { display: none; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .storage-section, .chat-section {
+        width: 100%;
+        min-width: unset;
+        height: calc(100dvh - 60px);
+        border-right: none;
+      }
+      .hidden-mobile { display: none !important; }
+      .section-header { padding: 14px 16px; }
+      .storage-content { padding: 14px 16px; }
+      .mobile-nav {
+        display: flex;
+        height: 60px;
+        background: #131826;
+        border-top: 1px solid var(--border);
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+      }
+      .nav-btn {
+        flex: 1;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .nav-btn.active { color: #60a5fa; background: rgba(59, 130, 246, 0.08); }
+    }
   </style>
 </head>
 <body>
 
-  <div class="storage-section">
-    <h2>📁 Kho Lưu Trữ Đám Mây</h2>
-    <div class="upload-box">
-      <textarea id="textInput" placeholder="Viết ghi chú hoặc đoạn văn..."></textarea>
-      <div class="controls">
-        <input type="file" id="fileInput" accept="image/*,video/*">
-        <button id="saveBtn" onclick="addPost()">Lưu lên mây</button>
-      </div>
+  <div class="storage-section" id="storageTab">
+    <div class="section-header">
+      <h2>📁 Kho Lưu Trữ Đám Mây</h2>
+      <span class="badge">Cloud Sync</span>
     </div>
-    <div class="feed" id="feed"></div>
+    <div class="storage-content">
+      <div class="upload-box">
+        <textarea id="textInput" placeholder="Ghi chú nhanh, ý tưởng hoặc dán liên kết vào đây..."></textarea>
+        <div class="controls">
+          <label for="fileInput" class="file-label" id="fileLabel">📎 Chọn ảnh / video</label>
+          <input type="file" id="fileInput" accept="image/*,video/*" onchange="updateFileName()">
+          <button class="btn-primary" id="saveBtn" onclick="addPost()">Lưu lên mây</button>
+        </div>
+      </div>
+      <div class="feed" id="feed"></div>
+    </div>
   </div>
 
-  <div class="chat-section">
-    <div class="chat-header">💬 Phòng Chat Online</div>
+  <div class="chat-section hidden-mobile" id="chatTab">
+    <div class="section-header">
+      <h2>💬 Phòng Chat Trực Tuyến</h2>
+      <span class="badge">Live</span>
+    </div>
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-input-area">
       <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter') sendMessage()">
-      <button onclick="sendMessage()">Gửi</button>
+      <button class="btn-send" onclick="sendMessage()" title="Gửi">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
     </div>
   </div>
 
+  <nav class="mobile-nav">
+    <button class="nav-btn active" id="btnNavStorage" onclick="switchTab('storage')">
+      <span>📁</span>
+      <span>Kho Lưu Trữ</span>
+    </button>
+    <button class="nav-btn" id="btnNavChat" onclick="switchTab('chat')">
+      <span>💬</span>
+      <span>Phòng Chat</span>
+    </button>
+  </nav>
+
   <script>
-    const SUPABASE_URL = 'https://pasqbzlazciysmecmkbu.supabase.co';
+    const SUPABASE_URL = 'https://supabase.co';
     const SUPABASE_KEY = 'sb_publishable_5EPRnZi4GIUK0LVGGYtzRw_osHnjeCm';
 
     const headers = {
@@ -61,7 +288,41 @@
       'Content-Type': 'application/json'
     };
 
-    // 1. Tải danh sách bài viết
+    function switchTab(tab) {
+      const storageTab = document.getElementById('storageTab');
+      const chatTab = document.getElementById('chatTab');
+      const btnStorage = document.getElementById('btnNavStorage');
+      const btnChat = document.getElementById('btnNavChat');
+
+      if (tab === 'storage') {
+        storageTab.classList.remove('hidden-mobile');
+        chatTab.classList.add('hidden-mobile');
+        btnStorage.classList.add('active');
+        btnChat.classList.remove('active');
+      } else {
+        chatTab.classList.remove('hidden-mobile');
+        storageTab.classList.add('hidden-mobile');
+        btnChat.classList.add('active');
+        btnStorage.classList.remove('active');
+        const box = document.getElementById('chatMessages');
+        box.scrollTop = box.scrollHeight;
+      }
+    }
+
+    function updateFileName() {
+      const fileInput = document.getElementById('fileInput');
+      const label = document.getElementById('fileLabel');
+      if (fileInput.files && fileInput.files[0]) {
+        label.textContent = '📄 ' + fileInput.files[0].name;
+        label.style.color = '#60a5fa';
+        label.style.borderColor = '#3b82f6';
+      } else {
+        label.textContent = '📎 Chọn ảnh / video';
+        label.style.color = '';
+        label.style.borderColor = '';
+      }
+    }
+
     async function loadPosts() {
       try {
         const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?select=*&order=id.desc`, { headers });
@@ -76,16 +337,18 @@
           let mediaHTML = '';
           if (item.media_url) {
             if (item.media_type && item.media_type.startsWith('image/')) {
-              mediaHTML = `<img src="${item.media_url}">`;
+              mediaHTML = `<img src="${item.media_url}" loading="lazy">`;
             } else if (item.media_type && item.media_type.startsWith('video/')) {
-              mediaHTML = `<video src="${item.media_url}" controls></video>`;
+              mediaHTML = `<video src="${item.media_url}" controls playsinline></video>`;
             }
           }
           card.innerHTML = `
             <button class="delete-btn" onclick="deletePost(${item.id})">Xóa</button>
             ${item.content ? `<p>${item.content}</p>` : ''}
             ${mediaHTML}
-            <span class="time">${new Date(item.created_at).toLocaleString('vi-VN')}</span>
+            <div class="card-footer">
+              <span class="time">🕒 ${new Date(item.created_at).toLocaleString('vi-VN')}</span>
+            </div>
           `;
           feed.appendChild(card);
         });
@@ -94,16 +357,15 @@
       }
     }
 
-    // 2. Đăng bài mới kèm ảnh/video
     async function addPost() {
       const text = document.getElementById('textInput').value.trim();
       const fileInput = document.getElementById('fileInput');
       const file = fileInput.files[0];
       const btn = document.getElementById('saveBtn');
 
-      if (!text && !file) return alert('Nhập chữ hoặc chọn file trước nhé!');
+      if (!text && !file) return alert('Nhập nội dung hoặc chọn ảnh/video trước nhé!');
       if (file && file.size > 50 * 1024 * 1024) {
-        return alert('File quá nặng! Gói miễn phí chỉ hỗ trợ file dưới 50MB.');
+        return alert('File quá nặng! Giới hạn miễn phí là 50MB.');
       }
 
       btn.disabled = true;
@@ -124,7 +386,7 @@
             },
             body: file
           });
-          if (!uploadRes.ok) throw new Error('Lỗi tải file lên Storage: ' + await uploadRes.text());
+          if (!uploadRes.ok) throw new Error('Lỗi tải file: ' + await uploadRes.text());
 
           mediaUrl = `${SUPABASE_URL}/storage/v1/object/public/media/${fileName}`;
           mediaType = file.type;
@@ -135,10 +397,11 @@
           headers,
           body: JSON.stringify({ content: text, media_url: mediaUrl, media_type: mediaType })
         });
-        if (!insertRes.ok) throw new Error('Lỗi lưu bài viết: ' + await insertRes.text());
+        if (!insertRes.ok) throw new Error('Lỗi lưu bài: ' + await insertRes.text());
 
         document.getElementById('textInput').value = '';
         fileInput.value = '';
+        updateFileName();
         await loadPosts();
       } catch (err) {
         alert(err.message);
@@ -148,8 +411,8 @@
       }
     }
 
-    // 3. Xóa bài viết
     async function deletePost(id) {
+      if (!confirm('Bạn chắc chắn muốn xóa mục này?')) return;
       try {
         const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?id=eq.${id}`, {
           method: 'DELETE',
@@ -162,20 +425,28 @@
       }
     }
 
-    // 4. Xử lý Chat
+    let lastMsgCount = 0;
     async function loadMessages() {
       try {
         const res = await fetch(`${SUPABASE_URL}/rest/v1/messages?select=*&order=id.asc`, { headers });
         if (!res.ok) return;
         const data = await res.json();
 
+        if (data.length === lastMsgCount) return;
+        lastMsgCount = data.length;
+
         const box = document.getElementById('chatMessages');
         box.innerHTML = '';
         data.forEach(m => {
-          const div = document.createElement('div');
-          div.className = 'msg';
-          div.textContent = m.text;
-          box.appendChild(div);
+          const group = document.createElement('div');
+          group.className = 'msg-group';
+          const timeStr = new Date(m.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+          group.innerHTML = `
+            <div class="msg"></div>
+            <span class="msg-time">${timeStr}</span>
+          `;
+          group.querySelector('.msg').textContent = m.text;
+          box.appendChild(group);
         });
         box.scrollTop = box.scrollHeight;
       } catch (err) {

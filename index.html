@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MySpace Hub — Anime & Cloud</title>
+  <title>MySpace Hub Pro</title>
   <link href="https://googleapis.com" rel="stylesheet">
   <style>
     :root[data-theme="dark"] {
@@ -20,93 +20,94 @@
     }
     :root[data-theme="anime"] {
       --bg-main: #130b24; --bg-sidebar: rgba(20, 14, 38, 0.78);
-      --bg-card: rgba(26, 18, 48, 0.72); --bg-input: rgba(38, 27, 68, 0.75);
+      --bg-card: rgba(26, 18, 48, 0.75); --bg-input: rgba(38, 27, 68, 0.8);
       --border: rgba(244, 114, 182, 0.35); --primary: #ec4899;
       --accent: #a855f7; --text-main: #fdf2f8; --text-muted: #f9a8d4;
       --bg-image: linear-gradient(rgba(15, 10, 30, 0.6), rgba(15, 10, 30, 0.7)), url('https://unsplash.com');
       --glass: blur(14px);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-    body {
-      background-color: var(--bg-main); background-image: var(--bg-image);
-      background-size: cover; background-position: center; background-attachment: fixed;
-      color: var(--text-main); display: flex; height: 100dvh; overflow: hidden; transition: 0.3s;
-    }
-    .sidebar {
-      width: 240px; background: var(--bg-sidebar); backdrop-filter: var(--glass);
-      border-right: 1px solid var(--border); display: flex; flex-direction: column;
-      padding: 16px 12px; gap: 8px; flex-shrink: 0; transition: width 0.25s; z-index: 20;
-    }
-    .sidebar.collapsed { width: 72px; }
-    .sidebar.collapsed .nav-text, .sidebar.collapsed .brand-text, .sidebar.collapsed .theme-title, .sidebar.collapsed #customBgBtn { display: none !important; }
-    .brand { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px 16px; border-bottom: 1px solid var(--border); margin-bottom: 6px; font-weight: 700; }
+    body { background-color: var(--bg-main); background-image: var(--bg-image); background-size: cover; background-position: center; background-attachment: fixed; color: var(--text-main); display: flex; height: 100dvh; overflow: hidden; transition: 0.3s; }
+    .sidebar { width: 245px; background: var(--bg-sidebar); backdrop-filter: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 14px 10px; gap: 6px; flex-shrink: 0; transition: width 0.25s; z-index: 20; }
+    .sidebar.collapsed { width: 70px; }
+    .sidebar.collapsed .nav-text, .sidebar.collapsed .brand-text, .sidebar.collapsed .theme-title, .sidebar.collapsed #customBgBtn, .sidebar.collapsed .music-title { display: none !important; }
+    .brand { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px 14px; border-bottom: 1px solid var(--border); margin-bottom: 4px; font-weight: 700; }
     .toggle-btn { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; color: var(--text-muted); background: transparent; border: 1px solid transparent; font-size: 0.92rem; cursor: pointer; white-space: nowrap; overflow: hidden; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 13px; border-radius: 12px; color: var(--text-muted); background: transparent; border: 1px solid transparent; font-size: 0.9rem; cursor: pointer; white-space: nowrap; overflow: hidden; }
     .nav-item.active { background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(236,72,153,0.18)); color: var(--primary); border-color: var(--border); font-weight: 600; }
-    .theme-box { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
-    .theme-title { font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); padding-left: 8px; font-weight: 600; }
-    .theme-btns { display: flex; gap: 6px; justify-content: center; }
-    .theme-btn { flex: 1; padding: 7px 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main); cursor: pointer; }
+    .music-box { background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: auto; }
+    .music-btn { background: var(--primary); color: #fff; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 0.8rem; flex-shrink: 0; }
+    .music-title { font-size: 0.78rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .theme-box { padding-top: 8px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+    .theme-btns { display: flex; gap: 5px; }
+    .theme-btn { flex: 1; padding: 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main); cursor: pointer; }
     .theme-btn.active { border-color: var(--primary); background: var(--primary); color: #fff; }
-    .bg-change-btn { width: 100%; padding: 7px; border-radius: 8px; border: 1px dashed var(--primary); background: rgba(236,72,153,0.12); color: var(--text-main); font-size: 0.78rem; cursor: pointer; margin-top: 4px; display: none; }
+    .bg-change-btn { width: 100%; padding: 6px; border-radius: 8px; border: 1px dashed var(--primary); background: rgba(236,72,153,0.12); color: var(--text-main); font-size: 0.76rem; cursor: pointer; display: none; }
     .main-area { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
     .tab-pane { display: none; flex-direction: column; height: 100%; overflow: hidden; }
     .tab-pane.active { display: flex; }
-    .top-bar { padding: 15px 22px; background: var(--bg-card); backdrop-filter: var(--glass); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    .scroll-body { flex: 1; overflow-y: auto; padding: 20px 22px; }
-    .box, .book-card, .media-card, .lock-card { background: var(--bg-card); backdrop-filter: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 18px; }
-    input[type="text"], input[type="password"], textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 10px 14px; border-radius: 10px; font-size: 0.92rem; margin-bottom: 10px; }
+    .top-bar { padding: 14px 20px; background: var(--bg-card); backdrop-filter: var(--glass); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .scroll-body { flex: 1; overflow-y: auto; padding: 18px 20px; }
+    .box, .book-card, .media-card, .lock-card { background: var(--bg-card); backdrop-filter: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+    input[type="text"], input[type="password"], textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 10px 13px; border-radius: 10px; font-size: 0.9rem; margin-bottom: 10px; }
     textarea { resize: vertical; min-height: 75px; }
-    .row-actions { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-    .file-btn { background: var(--bg-input); border: 1px dashed var(--border); color: var(--text-muted); padding: 8px 14px; border-radius: 10px; font-size: 0.85rem; cursor: pointer; max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .btn { background: var(--primary); color: #fff; border: none; padding: 9px 18px; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn:disabled { opacity: 0.5; }
+    .row-actions { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .file-btn { background: var(--bg-input); border: 1px dashed var(--border); color: var(--text-muted); padding: 8px 12px; border-radius: 10px; font-size: 0.83rem; cursor: pointer; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn { background: var(--primary); color: #fff; border: none; padding: 8px 16px; border-radius: 10px; font-weight: 600; font-size: 0.86rem; cursor: pointer; }
+    .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 6px 12px; border-radius: 8px; font-size: 0.82rem; cursor: pointer; font-weight: 600; }
     .btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); padding: 4px 10px; font-size: 0.75rem; border-radius: 8px; cursor: pointer; }
     .lock-screen { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-    .lock-card { max-width: 340px; width: 100%; padding: 28px 22px; }
-    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+    .lock-card { max-width: 350px; width: 100%; padding: 26px 20px; }
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
     .media-card { margin-bottom: 0; display: flex; flex-direction: column; gap: 8px; }
-    .media-card img, .media-card video { width: 100%; height: 210px; object-fit: cover; border-radius: 10px; background: #000; }
-    .tag-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .media-card img, .media-card video { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; background: #000; }
+    .tag-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
     .tag-chip { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; }
     .tag-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
     .book-card { position: relative; }
     .book-title { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; padding-right: 50px; }
-    .book-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-    .book-tag { background: rgba(168,85,247,0.18); color: var(--accent); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; }
-    .book-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-top: 8px; }
-    .book-text { font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; margin-top: 2px; }
-    .chat-box { flex: 1; overflow-y: auto; padding: 16px 22px; display: flex; flex-direction: column; gap: 12px; }
-    .chat-msg { max-width: 78%; background: var(--bg-card); backdrop-filter: var(--glass); border: 1px solid var(--border); padding: 10px 14px; border-radius: 16px; align-self: flex-start; }
+    .book-tag { background: rgba(168,85,247,0.18); color: var(--accent); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; margin-right: 5px; display: inline-block; margin-bottom: 6px; }
+    .reader-text { font-size: 1rem; line-height: 1.8; white-space: pre-wrap; padding: 10px 0; }
+    .chat-box { flex: 1; overflow-y: auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-msg { max-width: 78%; background: var(--bg-card); backdrop-filter: var(--glass); border: 1px solid var(--border); padding: 9px 13px; border-radius: 15px; align-self: flex-start; }
     .chat-msg.me { background: var(--primary); color: #fff; border-color: var(--primary); align-self: flex-end; }
-    .chat-sender { font-size: 0.72rem; opacity: 0.8; margin-bottom: 4px; font-weight: 600; }
-    .chat-msg img { max-width: 100%; max-height: 250px; border-radius: 10px; margin-top: 6px; display: block; }
-    .chat-footer { padding: 12px 16px; background: var(--bg-card); backdrop-filter: var(--glass); border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; }
+    .chat-sender { font-size: 0.72rem; opacity: 0.8; margin-bottom: 3px; font-weight: 600; }
+    .chat-msg img { max-width: 100%; max-height: 240px; border-radius: 10px; margin-top: 6px; display: block; }
+    .chat-footer { padding: 10px 14px; background: var(--bg-card); backdrop-filter: var(--glass); border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; }
     .chat-footer input[type="text"] { margin-bottom: 0; border-radius: 20px; }
     @media (max-width: 768px) {
       body { flex-direction: column; }
-      .sidebar { width: 100% !important; height: 64px; flex-direction: row; padding: 6px 8px; border-right: none; border-top: 1px solid var(--border); order: 2; align-items: center; justify-content: space-between; }
-      .brand, .theme-title { display: none !important; }
-      .nav-item { flex: 1; flex-direction: column; gap: 2px; padding: 6px 2px; font-size: 0.72rem; justify-content: center; }
+      .sidebar { width: 100% !important; height: 62px; flex-direction: row; padding: 5px 6px; border-right: none; border-top: 1px solid var(--border); order: 2; align-items: center; justify-content: space-between; }
+      .brand, .music-title { display: none !important; }
+      .nav-item { flex: 1; flex-direction: column; gap: 2px; padding: 4px 2px; font-size: 0.7rem; justify-content: center; }
       .nav-text { display: inline !important; }
-      .theme-box { margin-top: 0; padding-top: 0; border-top: none; border-left: 1px solid var(--border); padding-left: 6px; }
-      .bg-change-btn { padding: 4px 6px; font-size: 0.7rem; margin-top: 2px; }
-      .main-area { order: 1; height: calc(100dvh - 64px); }
-      .scroll-body { padding: 14px; }
+      .music-box { margin-top: 0; padding: 4px; border: none; background: transparent; }
+      .theme-box { padding-top: 0; border-top: none; border-left: 1px solid var(--border); padding-left: 5px; }
+      .main-area { order: 1; height: calc(100dvh - 62px); }
+      .scroll-body { padding: 12px; }
     }
   </style>
 </head>
 <body>
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <span class="brand-text">⚡ MySpace Hub</span>
+      <span class="brand-text">⚡ MySpace Pro</span>
       <button class="toggle-btn" onclick="toggleMenu()">☰</button>
     </div>
-    <button class="nav-item active" onclick="openTab('vault', this)"><span>🔒</span><span class="nav-text">Tư liệu cá nhân</span></button>
+    <button class="nav-item active" onclick="openTab('vault', this)"><span>🔒</span><span class="nav-text">Tư liệu riêng</span></button>
     <button class="nav-item" onclick="openTab('library', this)"><span>📚</span><span class="nav-text">Tàng thư viện</span></button>
     <button class="nav-item" onclick="openTab('chat', this)"><span>💬</span><span class="nav-text">Phòng chat</span></button>
+
+    <!-- Trình phát nhạc Chill -->
+    <div class="music-box">
+      <button class="music-btn" id="musicToggle" onclick="toggleMusic()" title="Bật / Tắt nhạc Chill">▶</button>
+      <span class="music-title" id="musicLabel">Lo-fi Chill Radio</span>
+      <audio id="bgAudio" loop preload="none">
+        <source src="https://pixabay.com" type="audio/mpeg">
+      </audio>
+    </div>
+
     <div class="theme-box">
-      <div class="theme-title">Giao diện</div>
       <div class="theme-btns">
         <button class="theme-btn active" id="th-dark" onclick="setTheme('dark')">🌙</button>
         <button class="theme-btn" id="th-light" onclick="setTheme('light')">☀️</button>
@@ -117,55 +118,91 @@
   </aside>
 
   <main class="main-area">
+    <!-- MỤC 1: TƯ LIỆU CÁ NHÂN TÁCH BIỆT TỪNG NGƯỜI -->
     <section id="tab-vault" class="tab-pane active">
       <div class="top-bar">
-        <h2>🔒 Tư liệu cá nhân</h2>
-        <button class="btn-danger" id="lockBtn" style="display:none;" onclick="lockVault()">Khóa lại</button>
+        <h2 id="vaultHeaderTitle">🔒 Tư liệu cá nhân</h2>
+        <button class="btn-danger" id="lockBtn" style="display:none;" onclick="lockVault()">Đăng xuất kho</button>
       </div>
       <div id="vaultLockScreen" class="lock-screen">
         <div class="lock-card">
-          <div style="font-size:2.4rem; margin-bottom:10px;">🛡️</div>
-          <h3 style="margin-bottom:14px;">Khu vực bảo mật</h3>
-          <input type="password" id="pinInput" placeholder="Nhập mã truy cập..." onkeypress="if(event.key==='Enter') unlockVault()">
-          <button class="btn" style="width:100%;" onclick="unlockVault()">Mở khóa</button>
+          <div style="font-size:2.2rem; margin-bottom:8px;">🛡️</div>
+          <h3 style="margin-bottom:6px;">Kho lưu trữ riêng biệt</h3>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">Nhập Tên + Mã PIN của riêng bạn để mở hoặc tạo kho mới</p>
+          <input type="text" id="vaultUser" placeholder="Tên tài khoản của bạn...">
+          <input type="password" id="pinInput" placeholder="Mã PIN bí mật..." onkeypress="if(event.key==='Enter') unlockVault()">
+          <button class="btn" style="width:100%;" onclick="unlockVault()">Mở kho của tôi</button>
         </div>
       </div>
       <div id="vaultContent" class="scroll-body" style="display:none;">
         <div class="box">
-          <input type="text" id="vaultNote" placeholder="Ghi chú ngắn cho ảnh hoặc video...">
+          <input type="text" id="vaultNote" placeholder="Ghi chú cho ảnh hoặc video...">
           <div class="row-actions">
             <label for="vaultFile" class="file-btn" id="vaultFileLabel">📎 Chọn ảnh / video</label>
             <input type="file" id="vaultFile" accept="image/*,video/*" onchange="showName('vaultFile','vaultFileLabel','📎 Chọn ảnh / video')">
-            <button class="btn" id="vaultSaveBtn" onclick="uploadVault()">Lưu tư liệu</button>
+            <button class="btn" id="vaultSaveBtn" onclick="uploadVault()">Lưu vào kho riêng</button>
           </div>
         </div>
         <div class="media-grid" id="vaultFeed"></div>
       </div>
     </section>
-
+    <!-- MỤC 2: TÀNG THƯ VIỆN & TRÌNH ĐỌC TỪNG CHƯƠNG -->
     <section id="tab-library" class="tab-pane">
-      <div class="top-bar"><h2>📚 Tàng thư viện</h2></div>
-      <div class="scroll-body">
+      <div class="top-bar">
+        <h2 id="libHeaderTitle">📚 Tàng thư viện</h2>
+        <button class="btn-outline" id="backToBooksBtn" style="display:none;" onclick="closeReader()">← Danh sách truyện</button>
+      </div>
+
+      <!-- Giao diện danh sách bộ truyện -->
+      <div id="libraryListView" class="scroll-body">
         <div class="box">
-          <input type="text" id="bookTitle" placeholder="Tên truyện / tác phẩm...">
+          <input type="text" id="bookTitle" placeholder="Tên bộ truyện...">
           <input type="text" id="bookTags" placeholder="Tag thể loại (VD: Tiên hiệp, Hành động, Anime)">
-          <textarea id="bookSummary" placeholder="Tóm tắt cơ bản nội dung..."></textarea>
-          <textarea id="bookReview" placeholder="Review & Đánh giá của bạn..."></textarea>
+          <textarea id="bookSummary" placeholder="Tóm tắt cơ bản..."></textarea>
+          <textarea id="bookReview" placeholder="Review & Đánh giá..."></textarea>
           <div class="row-actions">
-            <label for="bookFile" class="file-btn" id="bookFileLabel">📄 Đính kèm file truyện / ảnh bìa</label>
-            <input type="file" id="bookFile" onchange="showName('bookFile','bookFileLabel','📄 Đính kèm file truyện / ảnh bìa')">
-            <button class="btn" id="bookSaveBtn" onclick="addBook()">Thêm vào thư viện</button>
+            <label for="bookFile" class="file-btn" id="bookFileLabel">🖼️ Ảnh bìa / File đính kèm</label>
+            <input type="file" id="bookFile" onchange="showName('bookFile','bookFileLabel','🖼️ Ảnh bìa / File đính kèm')">
+            <button class="btn" id="bookSaveBtn" onclick="addBook()">Tạo bộ truyện</button>
           </div>
         </div>
         <div class="tag-bar" id="tagFilterBar"></div>
         <div id="libraryFeed"></div>
       </div>
+
+      <!-- Giao diện đọc & thêm từng chương truyện -->
+      <div id="chapterReaderView" class="scroll-body" style="display:none;">
+        <div class="box">
+          <h4 style="margin-bottom:10px; color:var(--primary);">➕ Thêm chương / trang mới</h4>
+          <input type="text" id="chapTitle" placeholder="Tên chương (VD: Chương 1: Khởi đầu)">
+          <textarea id="chapContent" placeholder="Dán nội dung chữ của chương vào đây (hoặc để trống nếu đăng trang ảnh)..."></textarea>
+          <div class="row-actions">
+            <label for="chapImg" class="file-btn" id="chapImgLabel">🖼️ Hoặc chọn trang ảnh truyện</label>
+            <input type="file" id="chapImg" accept="image/*" onchange="showName('chapImg','chapImgLabel','🖼️ Hoặc chọn trang ảnh truyện')">
+            <button class="btn" id="chapSaveBtn" onclick="addChapter()">Đăng chương</button>
+          </div>
+        </div>
+        <div id="chapterListBar" class="tag-bar"></div>
+        <div class="box" id="chapterDisplayBox" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:12px;">
+            <h3 id="currentChapHeading" style="color:var(--primary);"></h3>
+            <button class="btn-danger" id="delChapBtn">Xóa chương</button>
+          </div>
+          <div id="currentChapMedia"></div>
+          <div id="currentChapText" class="reader-text"></div>
+          <div style="display:flex; justify-content:space-between; margin-top:20px; padding-top:12px; border-top:1px solid var(--border);">
+            <button class="btn-outline" id="prevChapBtn" onclick="navChapter(-1)">← Chương trước</button>
+            <button class="btn-outline" id="nextChapBtn" onclick="navChapter(1)">Chương sau →</button>
+          </div>
+        </div>
+      </div>
     </section>
 
+    <!-- MỤC 3: PHÒNG CHAT -->
     <section id="tab-chat" class="tab-pane">
       <div class="top-bar">
         <h2>💬 Phòng chat</h2>
-        <input type="text" id="chatSender" placeholder="Tên của bạn..." style="width:130px; margin:0; padding:6px 10px; font-size:0.82rem;">
+        <input type="text" id="chatSender" placeholder="Tên của bạn..." onchange="saveChatName()" style="width:130px; margin:0; padding:6px 10px; font-size:0.82rem;">
       </div>
       <div class="chat-box" id="chatBox"></div>
       <div class="chat-footer">
@@ -177,37 +214,39 @@
     </section>
   </main>
   <script>
-    const SUPABASE_URL = 'https://pasqbzlazciysmecmkbu.supabase.co';
+    const SUPABASE_URL = 'https://supabase.co';
     const SUPABASE_KEY = 'sb_publishable_5EPRnZi4GIUK0LVGGYtzRw_osHnjeCm';
-    const VAULT_PIN = '1234';
-
     const headers = { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
 
+    // 1. Trình phát nhạc & Giao diện
+    function toggleMusic() {
+      const audio = document.getElementById('bgAudio');
+      const btn = document.getElementById('musicToggle');
+      if (audio.paused) { audio.play(); btn.textContent = '⏸'; }
+      else { audio.pause(); btn.textContent = '▶'; }
+    }
+
     function applyCustomBg() {
-      const customUrl = localStorage.getItem('myspace_anime_bg');
-      if (customUrl && document.documentElement.getAttribute('data-theme') === 'anime') {
-        document.documentElement.style.setProperty('--bg-image', `linear-gradient(rgba(15, 10, 30, 0.55), rgba(15, 10, 30, 0.65)), url('${customUrl}')`);
-      } else {
-        document.documentElement.style.removeProperty('--bg-image');
-      }
+      const url = localStorage.getItem('myspace_anime_bg');
+      if (url && document.documentElement.getAttribute('data-theme') === 'anime') {
+        document.documentElement.style.setProperty('--bg-image', `linear-gradient(rgba(15, 10, 30, 0.55), rgba(15, 10, 30, 0.65)), url('${url}')`);
+      } else document.documentElement.style.removeProperty('--bg-image');
     }
 
     function changeAnimeBg() {
-      const current = localStorage.getItem('myspace_anime_bg') || '';
-      const newUrl = prompt('Dán đường link (URL) hình nền Anime của bạn vào đây (để trống để về mặc định):', current);
+      const newUrl = prompt('Dán link ảnh nền Anime (để trống để về mặc định):', localStorage.getItem('myspace_anime_bg') || '');
       if (newUrl === null) return;
       if (newUrl.trim()) localStorage.setItem('myspace_anime_bg', newUrl.trim());
       else localStorage.removeItem('myspace_anime_bg');
       applyCustomBg();
     }
 
-    function setTheme(themeName) {
-      document.documentElement.setAttribute('data-theme', themeName);
-      localStorage.setItem('myspace_theme', themeName);
+    function setTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('myspace_theme', t);
       document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-      const btn = document.getElementById('th-' + themeName);
-      if (btn) btn.classList.add('active');
-      document.getElementById('customBgBtn').style.display = (themeName === 'anime') ? 'block' : 'none';
+      if (document.getElementById('th-' + t)) document.getElementById('th-' + t).classList.add('active');
+      document.getElementById('customBgBtn').style.display = (t === 'anime') ? 'block' : 'none';
       applyCustomBg();
     }
 
@@ -228,40 +267,53 @@
       if (tabName === 'chat') document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
     }
 
-    function showName(inputId, labelId, defaultText) {
-      const file = document.getElementById(inputId).files.item(0);
-      document.getElementById(labelId).textContent = file ? ('✅ ' + file.name) : defaultText;
+    function showName(inpId, lblId, def) {
+      const f = document.getElementById(inpId).files.item(0);
+      document.getElementById(lblId).textContent = f ? ('✅ ' + f.name) : def;
     }
 
     async function uploadFileToCloud(file) {
-      if (!file || !file.name) throw new Error('Không đọc được tệp!');
+      if (!file || !file.name) throw new Error('Tệp không hợp lệ!');
       if (file.size > 50 * 1024 * 1024) throw new Error('File vượt quá 50MB!');
       const safeName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
       const res = await fetch(`${SUPABASE_URL}/storage/v1/object/media/${safeName}`, {
         method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Content-Type': file.type || 'application/octet-stream' }, body: file
       });
-      if (!res.ok) throw new Error('Lỗi tải file: ' + await res.text());
+      if (!res.ok) throw new Error('Lỗi tải lên: ' + await res.text());
       return `${SUPABASE_URL}/storage/v1/object/public/media/${safeName}`;
     }
 
+    // 2. Kho tư liệu tách biệt theo từng tài khoản (Tên + PIN)
+    let currentOwnerKey = '';
+    document.getElementById('vaultUser').value = localStorage.getItem('myspace_username') || '';
+
     function unlockVault() {
-      if (document.getElementById('pinInput').value === VAULT_PIN) {
-        document.getElementById('vaultLockScreen').style.display = 'none';
-        document.getElementById('vaultContent').style.display = 'block';
-        document.getElementById('lockBtn').style.display = 'inline-block';
-        document.getElementById('pinInput').value = '';
-        loadVault();
-      } else alert('Sai mã truy cập!');
+      const user = document.getElementById('vaultUser').value.trim();
+      const pin = document.getElementById('pinInput').value.trim();
+      if (!user || !pin) return alert('Hãy nhập đủ Tên tài khoản và Mã PIN!');
+      localStorage.setItem('myspace_username', user);
+      document.getElementById('chatSender').value = user;
+      saveChatName();
+      currentOwnerKey = user.toLowerCase() + ':' + pin;
+      document.getElementById('vaultHeaderTitle').textContent = '🔒 Kho của ' + user;
+      document.getElementById('vaultLockScreen').style.display = 'none';
+      document.getElementById('vaultContent').style.display = 'block';
+      document.getElementById('lockBtn').style.display = 'inline-block';
+      document.getElementById('pinInput').value = '';
+      loadVault();
     }
 
     function lockVault() {
+      currentOwnerKey = '';
+      document.getElementById('vaultHeaderTitle').textContent = '🔒 Tư liệu cá nhân';
       document.getElementById('vaultLockScreen').style.display = 'flex';
       document.getElementById('vaultContent').style.display = 'none';
       document.getElementById('lockBtn').style.display = 'none';
     }
 
     async function loadVault() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?select=*&order=id.desc`, { headers: { 'apikey': SUPABASE_KEY } });
+      if (!currentOwnerKey) return;
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?owner=eq.${encodeURIComponent(currentOwnerKey)}&select=*&order=id.desc`, { headers: { 'apikey': SUPABASE_KEY } });
       if (!res.ok) return;
       const data = await res.json();
       const feed = document.getElementById('vaultFeed');
@@ -284,15 +336,16 @@
       try {
         let url = null, type = null;
         if (file) { url = await uploadFileToCloud(file); type = file.type; }
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/posts`, { method: 'POST', headers, body: JSON.stringify({ content: note, media_url: url, media_type: type }) });
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/posts`, { method: 'POST', headers, body: JSON.stringify({ content: note, media_url: url, media_type: type, owner: currentOwnerKey }) });
         if (!res.ok) throw new Error(await res.text());
         document.getElementById('vaultNote').value = ''; document.getElementById('vaultFile').value = '';
         showName('vaultFile','vaultFileLabel','📎 Chọn ảnh / video');
         loadVault();
       } catch (e) { alert(e.message); }
-      finally { btn.disabled = false; btn.textContent = 'Lưu tư liệu'; }
+      finally { btn.disabled = false; btn.textContent = 'Lưu vào kho riêng'; }
     }
-    let allBooks = [], activeTag = 'Tất cả';
+    // 3. Tàng thư viện & Đọc theo chương
+    let allBooks = [], activeTag = 'Tất cả', currentBookId = null, bookChapters = [], currentChapIdx = 0;
 
     async function loadLibrary() {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/library?select=*&order=id.desc`, { headers: { 'apikey': SUPABASE_KEY } });
@@ -304,8 +357,7 @@
     function renderTags() {
       const tagSet = new Set(['Tất cả']);
       allBooks.forEach(b => { if (b.tags) b.tags.split(',').forEach(t => { if (t.trim()) tagSet.add(t.trim()); }); });
-      const bar = document.getElementById('tagFilterBar');
-      bar.innerHTML = '';
+      const bar = document.getElementById('tagFilterBar'); bar.innerHTML = '';
       tagSet.forEach(tag => {
         const chip = document.createElement('button');
         chip.className = 'tag-chip' + (activeTag === tag ? ' active' : '');
@@ -316,14 +368,12 @@
     }
 
     function renderBooks() {
-      const feed = document.getElementById('libraryFeed');
-      feed.innerHTML = '';
+      const feed = document.getElementById('libraryFeed'); feed.innerHTML = '';
       const filtered = activeTag === 'Tất cả' ? allBooks : allBooks.filter(b => b.tags && b.tags.toLowerCase().includes(activeTag.toLowerCase()));
       filtered.forEach(b => {
         const tagsHTML = (b.tags || '').split(',').filter(t => t.trim()).map(t => `<span class="book-tag">#${t.trim()}</span>`).join('');
-        const div = document.createElement('div');
-        div.className = 'book-card';
-        div.innerHTML = `<button class="btn-danger" style="position:absolute; top:14px; right:14px;" onclick="deleteItem('library', ${b.id}, loadLibrary)">Xóa</button><div class="book-title">${b.title || 'Chưa đặt tên'}</div><div class="book-tags">${tagsHTML}</div>${b.summary ? `<div class="book-label">Tóm tắt</div><div class="book-text">${b.summary}</div>` : ''}${b.review ? `<div class="book-label">Review & Đánh giá</div><div class="book-text">${b.review}</div>` : ''}${b.file_url ? `<div style="margin-top:10px;"><a href="${b.file_url}" target="_blank" style="color:var(--primary); font-size:0.85rem; text-decoration:none;">📥 Mở tệp / Ảnh bìa đính kèm</a></div>` : ''}`;
+        const div = document.createElement('div'); div.className = 'book-card';
+        div.innerHTML = `<button class="btn-danger" style="position:absolute; top:14px; right:14px;" onclick="deleteItem('library', ${b.id}, loadLibrary)">Xóa</button><div class="book-title">${b.title}</div><div>${tagsHTML}</div>${b.summary ? `<p style="font-size:0.88rem; margin:6px 0;"><b>Tóm tắt:</b> ${b.summary}</p>` : ''}${b.review ? `<p style="font-size:0.88rem; margin:6px 0;"><b>Review:</b> ${b.review}</p>` : ''}<div style="margin-top:12px; display:flex; gap:10px; align-items:center;"><button class="btn" onclick="openReader(${b.id}, '${b.title.replace(/'/g, "\\'")}')">📖 Đọc & Thêm chương</button>${b.file_url ? `<a href="${b.file_url}" target="_blank" style="color:var(--primary); font-size:0.83rem;">📎 Tệp đính kèm</a>` : ''}</div>`;
         feed.appendChild(div);
       });
     }
@@ -334,21 +384,91 @@
       const summary = document.getElementById('bookSummary').value.trim();
       const review = document.getElementById('bookReview').value.trim();
       const file = document.getElementById('bookFile').files.item(0);
-      if (!title) return alert('Hãy nhập tên truyện!');
-      const btn = document.getElementById('bookSaveBtn');
-      btn.disabled = true; btn.textContent = 'Đang lưu...';
+      if (!title) return alert('Nhập tên bộ truyện!');
+      const btn = document.getElementById('bookSaveBtn'); btn.disabled = true; btn.textContent = 'Đang tạo...';
       try {
-        let fileUrl = null;
-        if (file) fileUrl = await uploadFileToCloud(file);
+        let fileUrl = file ? await uploadFileToCloud(file) : null;
         const res = await fetch(`${SUPABASE_URL}/rest/v1/library`, { method: 'POST', headers, body: JSON.stringify({ title, tags, summary, review, file_url: fileUrl }) });
         if (!res.ok) throw new Error(await res.text());
-        document.getElementById('bookTitle').value = ''; document.getElementById('bookTags').value = '';
-        document.getElementById('bookSummary').value = ''; document.getElementById('bookReview').value = '';
-        document.getElementById('bookFile').value = '';
-        showName('bookFile','bookFileLabel','📄 Đính kèm file truyện / ảnh bìa');
+        ['bookTitle','bookTags','bookSummary','bookReview','bookFile'].forEach(id => document.getElementById(id).value = '');
+        showName('bookFile','bookFileLabel','🖼️ Ảnh bìa / File đính kèm');
         loadLibrary();
-      } catch (e) { alert(e.message); }
-      finally { btn.disabled = false; btn.textContent = 'Thêm vào thư viện'; }
+      } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.textContent = 'Tạo bộ truyện'; }
+    }
+
+    async function openReader(bookId, title) {
+      currentBookId = bookId;
+      document.getElementById('libHeaderTitle').textContent = '📖 ' + title;
+      document.getElementById('backToBooksBtn').style.display = 'inline-block';
+      document.getElementById('libraryListView').style.display = 'none';
+      document.getElementById('chapterReaderView').style.display = 'block';
+      loadChapters();
+    }
+
+    function closeReader() {
+      currentBookId = null;
+      document.getElementById('libHeaderTitle').textContent = '📚 Tàng thư viện';
+      document.getElementById('backToBooksBtn').style.display = 'none';
+      document.getElementById('libraryListView').style.display = 'block';
+      document.getElementById('chapterReaderView').style.display = 'none';
+    }
+
+    async function loadChapters() {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters?book_id=eq.${currentBookId}&select=*&order=id.asc`, { headers: { 'apikey': SUPABASE_KEY } });
+      if (!res.ok) return;
+      bookChapters = await res.json();
+      const bar = document.getElementById('chapterListBar'); bar.innerHTML = '';
+      bookChapters.forEach((c, idx) => {
+        const b = document.createElement('button');
+        b.className = 'tag-chip' + (idx === currentChapIdx ? ' active' : '');
+        b.textContent = c.chapter_title || ('Chương ' + (idx + 1));
+        b.onclick = () => showChapter(idx);
+        bar.appendChild(b);
+      });
+      if (bookChapters.length > 0) showChapter(Math.min(currentChapIdx, bookChapters.length - 1));
+      else document.getElementById('chapterDisplayBox').style.display = 'none';
+    }
+
+    function showChapter(idx) {
+      currentChapIdx = idx;
+      const chap = bookChapters[idx];
+      document.getElementById('chapterDisplayBox').style.display = 'block';
+      document.getElementById('currentChapHeading').textContent = chap.chapter_title || ('Chương ' + (idx + 1));
+      const isImg = chap.content && chap.content.startsWith('IMG_URL:');
+      document.getElementById('currentChapMedia').innerHTML = isImg ? `<img src="${chap.content.replace('IMG_URL:','')}" style="max-width:100%; border-radius:10px;">` : '';
+      document.getElementById('currentChapText').textContent = isImg ? '' : (chap.content || '');
+      document.getElementById('delChapBtn').onclick = () => deleteItem('chapters', chap.id, loadChapters);
+      document.querySelectorAll('#chapterListBar .tag-chip').forEach((el, i) => el.classList.toggle('active', i === idx));
+    }
+
+    function navChapter(step) {
+      const next = currentChapIdx + step;
+      if (next >= 0 && next < bookChapters.length) showChapter(next);
+    }
+
+    async function addChapter() {
+      const title = document.getElementById('chapTitle').value.trim();
+      let content = document.getElementById('chapContent').value.trim();
+      const file = document.getElementById('chapImg').files.item(0);
+      if (!title && !content && !file) return alert('Nhập tên chương, nội dung hoặc chọn trang ảnh!');
+      const btn = document.getElementById('chapSaveBtn'); btn.disabled = true; btn.textContent = 'Đang đăng...';
+      try {
+        if (file) content = 'IMG_URL:' + await uploadFileToCloud(file);
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters`, { method: 'POST', headers, body: JSON.stringify({ book_id: currentBookId, chapter_title: title || ('Chương ' + (bookChapters.length + 1)), content }) });
+        if (!res.ok) throw new Error(await res.text());
+        ['chapTitle','chapContent','chapImg'].forEach(id => document.getElementById(id).value = '');
+        showName('chapImg','chapImgLabel','🖼️ Hoặc chọn trang ảnh truyện');
+        currentChapIdx = bookChapters.length;
+        loadChapters();
+      } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.textContent = 'Đăng chương'; }
+    }
+
+    // 4. Phòng chat lưu tên tự động
+    document.getElementById('chatSender').value = localStorage.getItem('myspace_username') || '';
+    function saveChatName() {
+      const name = document.getElementById('chatSender').value.trim();
+      if (name) localStorage.setItem('myspace_username', name);
+      lastChatLen = -1; loadChat();
     }
 
     let lastChatLen = 0;
@@ -359,8 +479,7 @@
       if (data.length === lastChatLen) return;
       lastChatLen = data.length;
       const myName = document.getElementById('chatSender').value.trim() || 'Ẩn danh';
-      const box = document.getElementById('chatBox');
-      box.innerHTML = '';
+      const box = document.getElementById('chatBox'); box.innerHTML = '';
       data.forEach(m => {
         const isMe = m.sender && m.sender === myName;
         const div = document.createElement('div');
@@ -373,34 +492,26 @@
 
     async function sendChat() {
       const sender = document.getElementById('chatSender').value.trim() || 'Ẩn danh';
-      const textInp = document.getElementById('chatText');
-      const imgInp = document.getElementById('chatImg');
-      const text = textInp.value.trim();
-      const file = imgInp.files.item(0);
+      const textInp = document.getElementById('chatText'), imgInp = document.getElementById('chatImg');
+      const text = textInp.value.trim(), file = imgInp.files.item(0);
       if (!text && !file) return;
-      const btn = document.getElementById('chatSendBtn');
-      btn.disabled = true;
+      const btn = document.getElementById('chatSendBtn'); btn.disabled = true;
       try {
-        let imgUrl = null;
-        if (file) imgUrl = await uploadFileToCloud(file);
+        let imgUrl = file ? await uploadFileToCloud(file) : null;
         const res = await fetch(`${SUPABASE_URL}/rest/v1/messages`, { method: 'POST', headers, body: JSON.stringify({ sender, text, image_url: imgUrl }) });
         if (!res.ok) throw new Error(await res.text());
-        textInp.value = ''; imgInp.value = '';
-        showName('chatImg','chatImgLabel','🖼️');
+        textInp.value = ''; imgInp.value = ''; showName('chatImg','chatImgLabel','🖼️');
         loadChat();
-      } catch (e) { alert('Lỗi gửi tin: ' + e.message); }
-      finally { btn.disabled = false; }
+      } catch (e) { alert('Lỗi gửi tin: ' + e.message); } finally { btn.disabled = false; }
     }
 
     async function deleteItem(table, id, reloadFn) {
-      if (!confirm('Xác nhận xóa mục này?')) return;
+      if (!confirm('Xác nhận xóa?')) return;
       await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, { method: 'DELETE', headers });
       reloadFn();
     }
 
-    loadLibrary();
-    loadChat();
-    setInterval(loadChat, 2500);
+    loadLibrary(); loadChat(); setInterval(loadChat, 2500);
   </script>
 </body>
 </html>

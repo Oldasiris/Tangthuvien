@@ -230,6 +230,8 @@
             <div style="display:flex; gap:5px;">
               <button class="btn-outline" onclick="changeFontSize(-2)">A-</button>
               <button class="btn-outline" onclick="changeFontSize(2)">A+</button>
+              <button class="btn-outline" id="aiTransBtn" onclick="translateCurrentChapter()" style="border-color:var(--accent); color:var(--accent);">✨ AI Dịch mượt</button>
+              <button class="btn-outline" id="origChapBtn" onclick="restoreOriginalChapter()" style="display:none;">↺ Bản gốc</button>
               <button class="btn-outline" onclick="toggleSepia()">📜</button>
               <button class="btn-danger" id="delChapBtn">🗑️</button>
             </div>
@@ -412,16 +414,24 @@
       rec.start();
     }
 
-    async function checkStorageQuota() {
+        async function checkStorageQuota() {
       try {
         const res = await fetch(`${SUPABASE_URL}/storage/v1/object/list/media`, {
-          method: 'POST', headers: writeHeaders, body: JSON.stringify({ limit: 1000, offset: 0 })
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ limit: 1000, offset: 0, prefix: '' })
         });
         if (!res.ok) return;
         const files = await res.json();
         let totalBytes = 0;
-        files.forEach(f => { if (f.metadata && f.metadata.size) totalBytes += f.metadata.size; });
-        const usedMB = (totalBytes / (1024 * 1024)).toFixed(1);
+        files.forEach(f => {
+          if (f.metadata && f.metadata.size) totalBytes += Number(f.metadata.size);
+        });
+        const usedMB = (totalBytes / (1024 * 1024)).toFixed(2);
         const percent = Math.min(100, (usedMB / 1024) * 100).toFixed(1);
         document.getElementById('quotaText').textContent = `${usedMB} / 1024 MB`;
         document.getElementById('mobileQuotaBadge').textContent = `💾 ${usedMB}MB / 1GB`;
@@ -686,7 +696,9 @@
       else document.getElementById('chapterDisplayBox').style.display = 'none';
     }
 
-    function showChapter(idx) {
+        function showChapter(idx) {
+      originalChapterCache = '';
+      document.getElementById('origChapBtn').style.display = 'none';
       currentChapIdx = idx;
       if (currentBookId) localStorage.setItem('read_prog_' + currentBookId, idx);
       const chap = bookChapters.at(idx);
@@ -697,6 +709,56 @@
       document.getElementById('currentChapText').textContent = isImg ? '' : (chap.content || '');
       document.getElementById('delChapBtn').onclick = () => deleteItem('chapters', chap.id, loadChapters);
       document.querySelectorAll('#chapterListBar .tag-chip').forEach((el, i) => el.classList.toggle('active', i === idx));
+    }
+    let originalChapterCache = '';
+
+    async function translateCurrentChapter() {
+      if (!GEMINI_KEY) {
+        alert(currentLang === 'ja' ? '先に右上の🔑ボタンでGemini API Keyを設定してください！' : 'Bạn hãy bấm nút 🔑 ở mục Kho ảnh AI để nhập mã Gemini Key trước nhé!');
+        return;
+      }
+      const textEl = document.getElementById('currentChapText');
+      const rawText = textEl.textContent.trim();
+      if (!rawText) return;
+
+      if (!originalChapterCache) originalChapterCache = rawText;
+      const btn = document.getElementById('aiTransBtn');
+      btn.disabled = true;
+      btn.textContent = currentLang === 'ja' ? '⏳ AI翻訳中...' : '⏳ AI đang biên tập...';
+
+      const sysPrompt = (currentLang === 'ja')
+        ? "あなたはプロの小説翻訳・編集者です。以下の物語の章を、文脈やキャラクターの口調に合わせて自然で読みやすい日本語にリライト・翻訳してください。余計な挨拶は省き、本文のみを出力してください：\n\n"
+        : "Bạn là biên tập viên truyện chuyên nghiệp. Hãy dịch và biên tập lại chương truyện dưới đây sang tiếng Việt thật mượt mà, tự nhiên, sát ngữ cảnh, giữ đúng đại từ nhân xưng (ta/ngươi, huynh/muội, anh/em...) và cảm xúc nhân vật. Không giải thích dài dòng, chỉ trả về nội dung truyện đã biên tập:\n\n";
+
+      try {
+        const res = await fetch(`https://googleapis.com{encodeURIComponent(GEMINI_KEY)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: sysPrompt + originalChapterCache }] }]
+          })
+        });
+        if (!res.ok) throw new Error('Lỗi kết nối AI');
+        const data = await res.json();
+        const cand = data.candidates ? data.candidates.at(0) : null;
+        const part = cand && cand.content && cand.content.parts ? cand.content.parts.at(0) : null;
+        if (part && part.text) {
+          textEl.textContent = part.text.trim();
+          document.getElementById('origChapBtn').style.display = 'inline-block';
+        }
+      } catch (e) {
+        alert('Lỗi dịch AI: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = currentLang === 'ja' ? '✨ AI翻訳' : '✨ AI Dịch mượt';
+      }
+    }
+
+    function restoreOriginalChapter() {
+      if (originalChapterCache) {
+        document.getElementById('currentChapText').textContent = originalChapterCache;
+        document.getElementById('origChapBtn').style.display = 'none';
+      }
     }
 
     function navChapter(step) {

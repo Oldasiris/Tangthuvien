@@ -879,6 +879,9 @@
       if (next >= 0 && next < bookChapters.length) showChapter(next);
     }
 
+       // BỘ ĐỌC GIỌNG NÓI CHẤT LƯỢNG CAO (TỰ CHIA ĐOẠN & CHẠY NỀN LIÊN TỤC)
+    let ttsChunks = [], ttsChunkIdx = 0;
+
     function toggleReadAloud(mode) {
       if (isReadingAloud && currentReadMode === mode) stopReadAloud();
       else startReadAloud(mode);
@@ -886,49 +889,61 @@
 
     function startReadAloud(mode) {
       const text = document.getElementById('currentChapText').textContent.trim();
-      if (!text || !('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
+      if (!text) return;
+      stopReadAloud();
       isReadingAloud = true;
       currentReadMode = mode;
 
       document.getElementById('ttsPlayBtn').textContent = mode === 'normal' ? '⏹ Dừng' : '🎧 Nghe';
       document.getElementById('asmrPlayBtn').textContent = mode === 'asmr' ? '⏹ Dừng ASMR' : '🌸 ASMR JP';
 
-      const utter = new SpeechSynthesisUtterance(text);
-      if (mode === 'asmr') {
-        utter.lang = 'ja-JP';
-        utter.rate = 0.85;
-        utter.pitch = 1.08;
-        const voices = window.speechSynthesis.getVoices();
-        const jpFemale = voices.find(v => v.lang.includes('ja') && (v.name.includes('Nanami') || v.name.includes('Kyoko') || v.name.includes('Haruka') || v.name.includes('Google')));
-        if (jpFemale) utter.voice = jpFemale;
-      } else {
-        utter.lang = (currentLang === 'ja') ? 'ja-JP' : 'vi-VN';
-        utter.rate = 1.05;
+      // Chia văn bản thành các câu ngắn dưới 180 ký tự để đọc mượt và ngắt nghỉ tự nhiên
+      ttsChunks = text.match(/[^.!?\n。！？]+[.!?\n。！？]*/g) || [text];
+      ttsChunks = ttsChunks.map(s => s.trim()).filter(s => s.length > 0);
+      ttsChunkIdx = 0;
+      playNextTtsChunk();
+    }
+
+    function playNextTtsChunk() {
+      if (!isReadingAloud) return;
+      if (ttsChunkIdx >= ttsChunks.length) {
+        if (currentChapIdx + 1 < bookChapters.length) navChapter(1);
+        else stopReadAloud();
+        return;
       }
 
-      utter.onend = () => {
-        if (isReadingAloud && currentChapIdx + 1 < bookChapters.length) navChapter(1);
-        else stopReadAloud();
+      const chunk = ttsChunks.at(ttsChunkIdx).slice(0, 190);
+      const langCode = (currentReadMode === 'asmr') ? 'ja' : 'vi';
+      const ttsUrl = 'https://google.com' + langCode + '&q=' + encodeURIComponent(chunk);
+
+      const audio = document.getElementById('mp3Player');
+      audio.src = ttsUrl;
+      audio.playbackRate = (currentReadMode === 'asmr') ? 0.92 : 1.05;
+      audio.onended = () => {
+        ttsChunkIdx++;
+        playNextTtsChunk();
       };
-      window.speechSynthesis.speak(utter);
+      audio.onerror = () => {
+        // Dự phòng nếu mạng chặn: dùng giọng trên máy
+        const utter = new SpeechSynthesisUtterance(chunk);
+        utter.lang = (currentReadMode === 'asmr') ? 'ja-JP' : 'vi-VN';
+        utter.rate = (currentReadMode === 'asmr') ? 0.85 : 1.0;
+        utter.onend = () => { ttsChunkIdx++; playNextTtsChunk(); };
+        window.speechSynthesis.speak(utter);
+      };
+      audio.play().catch(() => {});
     }
 
     function stopReadAloud() {
       isReadingAloud = false;
+      const audio = document.getElementById('mp3Player');
+      if (audio) { audio.pause(); audio.src = ''; }
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
       document.getElementById('ttsPlayBtn').textContent = '🎧 Nghe';
       document.getElementById('asmrPlayBtn').textContent = '🌸 ASMR JP';
     }
 
-    function polishStoryStyle(text) {
-      return text
-        .replace(/\bta này\b/gi, 'tôi').replace(/\bhắn ta\b/gi, 'anh ta')
-        .replace(/\bnàng ta\b/gi, 'cô ấy').replace(/\bnhà trẻ\b/gi, 'trường mẫu giáo')
-        .replace(/\btiểu bằng hữu\b/gi, 'bạn nhỏ').replace(/\btiểu hài tử\b/gi, 'đứa trẻ')
-        .replace(/\bkí sự\b/gi, 'ký ức').replace(/\s+\n/g, '\n').replace(/\n{3,}/g, '\n\n');
-    }
-
+    // BỘ DỊCH & BIÊN TẬP MƯỢT THỰC SỰ (XỬ LÝ CẢ CONVERT LẪN NGOẠI NGỮ)
     async function translateCurrentChapter() {
       const textEl = document.getElementById('currentChapText');
       const rawText = textEl.textContent.trim();
@@ -936,31 +951,46 @@
       if (!originalChapterCache) originalChapterCache = rawText;
 
       const btn = document.getElementById('aiTransBtn');
-      btn.disabled = true; btn.textContent = '⏳...';
+      btn.disabled = true;
+      btn.textContent = '⏳ Đang dịch...';
+
       try {
-        let translated = '';
-        const isVietnamese = /[ăâđêôơưàảãáạằẳẵắặầẩẫấậèẻẽéẹềểễếệìỉĩíịòỏõóọồổỗốộờởỡớợùủũúụừửữứựỳỷỹýỵ]/i.test(originalChapterCache);
-        if (isVietnamese && currentLang === 'vi') {
-          translated = polishStoryStyle(originalChapterCache);
-        } else {
-          const targetLang = (currentLang === 'ja') ? 'ja' : 'vi';
-          const lines = originalChapterCache.split('\n').filter(l => l.trim());
-          const outLines = [];
-          for (let i = 0; i < Math.min(lines.length, 25); i++) {
-            const line = lines.at(i).slice(0, 450);
-            const res = await fetch('https://translated.net' + encodeURIComponent(line) + '&langpair=Autodetect|' + targetLang);
-            if (res.ok) {
-              const data = await res.json();
-              outLines.push(data.responseData?.translatedText || line);
+        const targetLang = (currentLang === 'ja') ? 'ja' : 'vi';
+        const lines = originalChapterCache.split('\n').filter(l => l.trim());
+        const outLines = [];
+
+        for (let i = 0; i < Math.min(lines.length, 30); i++) {
+          const line = lines.at(i).trim();
+          // Nếu đang ở tiếng Việt mà văn bản bị dịch thô (convert), dịch qua trung gian tiếng Anh rồi về tiếng Việt để câu văn tự nhiên hẳn
+          const isViet = /[ăâđêôơưàảãáạằẳẵắặầẩẫấậèẻẽéẹềểễếệìỉĩíịòỏõóọồổỗốộờởỡớợùủũúụừửữứựỳỷỹýỵ]/i.test(line);
+          if (isViet && targetLang === 'vi') {
+            const step1 = await fetch('https://translated.net' + encodeURIComponent(line.slice(0, 450)) + '&langpair=vi|en');
+            const d1 = step1.ok ? await step1.json() : null;
+            const enText = d1?.responseData?.translatedText || '';
+            if (enText) {
+              const step2 = await fetch('https://translated.net' + encodeURIComponent(enText.slice(0, 450)) + '&langpair=en|vi');
+              const d2 = step2.ok ? await step2.json() : null;
+              outLines.push(d2?.responseData?.translatedText || line);
             } else outLines.push(line);
+          } else {
+            const srcLang = isViet ? 'vi' : 'ja';
+            const res = await fetch('https://translated.net' + encodeURIComponent(line.slice(0, 450)) + '&langpair=' + srcLang + '|' + targetLang);
+            const data = res.ok ? await res.json() : null;
+            outLines.push(data?.responseData?.translatedText || line);
           }
-          translated = outLines.join('\n\n');
         }
-        if (translated) {
-          textEl.textContent = translated.trim();
+
+        const finalResult = outLines.join('\n\n').trim();
+        if (finalResult) {
+          textEl.textContent = finalResult;
           document.getElementById('origChapBtn').style.display = 'inline-block';
         }
-      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = '✨ Dịch mượt'; }
+      } catch (e) {
+        alert('Lỗi dịch: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✨ Dịch mượt';
+      }
     }
 
     function restoreOriginalChapter() {
@@ -969,6 +999,7 @@
         document.getElementById('origChapBtn').style.display = 'none';
       }
     }
+
     let allSongs = [], activePlaylist = 'All', filteredSongs = [], currentSongIdx = -1, isMusicPlaying = false;
 
     function getCleanYtId(rawStr) {

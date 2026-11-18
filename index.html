@@ -712,11 +712,7 @@
     }
     let originalChapterCache = '';
 
-    async function translateCurrentChapter() {
-      if (!GEMINI_KEY) {
-        alert(currentLang === 'ja' ? '先に右上の🔑ボタンでGemini API Keyを設定してください！' : 'Bạn hãy bấm nút 🔑 ở mục Kho ảnh AI để nhập mã Gemini Key trước nhé!');
-        return;
-      }
+        async function translateCurrentChapter() {
       const textEl = document.getElementById('currentChapText');
       const rawText = textEl.textContent.trim();
       if (!rawText) return;
@@ -724,30 +720,42 @@
       if (!originalChapterCache) originalChapterCache = rawText;
       const btn = document.getElementById('aiTransBtn');
       btn.disabled = true;
-      btn.textContent = currentLang === 'ja' ? '⏳ AI翻訳中...' : '⏳ AI đang biên tập...';
-
-      const sysPrompt = (currentLang === 'ja')
-        ? "あなたはプロの小説翻訳・編集者です。以下の物語の章を、文脈やキャラクターの口調に合わせて自然で読みやすい日本語にリライト・翻訳してください。余計な挨拶は省き、本文のみを出力してください：\n\n"
-        : "Bạn là biên tập viên truyện chuyên nghiệp. Hãy dịch và biên tập lại chương truyện dưới đây sang tiếng Việt thật mượt mà, tự nhiên, sát ngữ cảnh, giữ đúng đại từ nhân xưng (ta/ngươi, huynh/muội, anh/em...) và cảm xúc nhân vật. Không giải thích dài dòng, chỉ trả về nội dung truyện đã biên tập:\n\n";
+      btn.textContent = currentLang === 'ja' ? '⏳ 翻訳中...' : '⏳ Đang dịch mượt...';
 
       try {
-        const res = await fetch(`https://googleapis.com{encodeURIComponent(GEMINI_KEY)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: sysPrompt + originalChapterCache }] }]
-          })
-        });
-        if (!res.ok) throw new Error('Lỗi kết nối AI');
-        const data = await res.json();
-        const cand = data.candidates ? data.candidates.at(0) : null;
-        const part = cand && cand.content && cand.content.parts ? cand.content.parts.at(0) : null;
-        if (part && part.text) {
-          textEl.textContent = part.text.trim();
+        let translated = '';
+        // Tầng 1: Thử gọi Gemini AI nếu có Key chuẩn AIza
+        if (GEMINI_KEY && GEMINI_KEY.startsWith('AIza')) {
+          const prompt = (currentLang === 'ja')
+            ? "以下の物語を自然な日本語に翻訳・編集してください：\n\n" + originalChapterCache
+            : "Biên tập và dịch lại đoạn truyện sau sang tiếng Việt thật mượt mà, tự nhiên, giữ đúng xưng hô nhân vật:\n\n" + originalChapterCache;
+          const res = await fetch('https://googleapis.com' + GEMINI_KEY, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            translated = data.candidates?.at(0)?.content?.parts?.at(0)?.text || '';
+          }
+        }
+
+        // Tầng 2: Tự động dùng cổng dịch thuật miễn phí (Không bao giờ bị lỗi CORS/Fetch)
+        if (!translated) {
+          const targetLang = (currentLang === 'ja') ? 'ja' : 'vi';
+          const url = 'https://googleapis.com' + targetLang + '&dt=t&q=' + encodeURIComponent(originalChapterCache.slice(0, 4500));
+          const res = await fetch(url);
+          if (!res.ok) throw new Error('Không thể kết nối máy chủ dịch');
+          const data = await res.json();
+          translated = data.at(0).map(item => item.at(0)).join('');
+        }
+
+        if (translated) {
+          textEl.textContent = translated.trim();
           document.getElementById('origChapBtn').style.display = 'inline-block';
         }
       } catch (e) {
-        alert('Lỗi dịch AI: ' + e.message);
+        alert('Lỗi dịch: ' + e.message);
       } finally {
         btn.disabled = false;
         btn.textContent = currentLang === 'ja' ? '✨ AI翻訳' : '✨ AI Dịch mượt';

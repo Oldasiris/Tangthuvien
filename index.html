@@ -58,7 +58,7 @@
     .top-bar { padding: 12px 18px; background: var(--bg-card); backdrop-filter: var(--glass); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .scroll-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
     .box, .book-card, .media-card, .lock-card, .song-item { background: var(--bg-card); backdrop-filter: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
-    input[type="text"], input[type="password"], textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 10px 13px; border-radius: 10px; font-size: 0.9rem; margin-bottom: 10px; }
+    input[type="text"], input[type="password"], input[type="number"], textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 10px 13px; border-radius: 10px; font-size: 0.9rem; margin-bottom: 10px; }
     textarea { resize: vertical; min-height: 75px; }
     .row-actions { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
     .file-btn { background: var(--bg-input); border: 1px dashed var(--border); color: var(--text-muted); padding: 8px 12px; border-radius: 10px; font-size: 0.83rem; cursor: pointer; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -82,8 +82,6 @@
     .tag-bar { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
     .tag-chip { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); padding: 5px 11px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; }
     .tag-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .book-card { position: relative; }
-    .book-title { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; padding-right: 45px; }
     .book-tag { background: rgba(168,85,247,0.18); color: var(--accent); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; margin-right: 5px; display: inline-block; margin-bottom: 6px; }
     .reader-box.sepia { background: #f4ecd8 !important; color: #3b2f2f !important; border-color: #d6c7a9 !important; }
     .reader-text { font-size: 16px; line-height: 1.85; white-space: pre-wrap; padding: 10px 0; }
@@ -138,7 +136,7 @@
       <span class="music-title" id="miniSongTitle">Chưa chọn nhạc</span>
       <button class="toggle-btn" style="width:26px; height:26px; font-size:0.75rem;" onclick="playNextSong()">⏭</button>
     </div>
-    <div id="ytHiddenBox" style="width:0; height:0; overflow:hidden;"></div>
+    <div id="ytHiddenBox" style="display:none;"></div>
     <audio id="mp3Player" onended="playNextSong()"></audio>
 
     <div class="theme-box">
@@ -195,44 +193,72 @@
     <section id="tab-library" class="tab-pane">
       <div class="top-bar">
         <h2 id="libHeaderTitle" style="font-size:1rem;">📚 Tàng thư viện</h2>
-        <button class="btn-outline" id="backToBooksBtn" style="display:none;" onclick="closeReader()">← Danh sách</button>
+        <button class="btn-outline" id="backToBooksBtn" style="display:none;" onclick="closeLibrarySubViews()">← Quay lại</button>
       </div>
+
       <div id="libraryListView" class="scroll-body">
         <div class="box">
+          <h4 id="bookFormTitle" style="margin-bottom:8px; color:var(--primary);">➕ Thêm bộ truyện mới</h4>
           <input type="text" id="bookTitle" placeholder="Tên bộ truyện...">
           <input type="text" id="bookTags" placeholder="Tag thể loại (VD: Tiên hiệp, Anime)">
           <textarea id="bookSummary" placeholder="Tóm tắt cơ bản..."></textarea>
           <textarea id="bookReview" placeholder="Review & Đánh giá..."></textarea>
           <div class="row-actions">
-            <label for="bookFile" class="file-btn" id="bookFileLabel">🖼️ Ảnh bìa / File</label>
-            <input type="file" id="bookFile" onchange="showName('bookFile','bookFileLabel','🖼️ Ảnh bìa / File')">
-            <button class="btn" id="bookSaveBtn" onclick="addBook()">Tạo truyện</button>
+            <label for="bookFile" class="file-btn" id="bookFileLabel">🖼️ Chọn ảnh bìa truyện</label>
+            <input type="file" id="bookFile" accept="image/*" onchange="showName('bookFile','bookFileLabel','🖼️ Chọn ảnh bìa truyện')">
+            <div style="display:flex; gap:6px;">
+              <button class="btn-outline" id="cancelEditBookBtn" style="display:none;" onclick="resetBookForm()">Hủy</button>
+              <button class="btn" id="bookSaveBtn" onclick="saveBook()">Lưu bộ truyện</button>
+            </div>
           </div>
         </div>
         <div class="tag-bar" id="tagFilterBar"></div>
-        <div id="libraryFeed"></div>
+        <div class="media-grid" id="libraryFeed"></div>
       </div>
+
+      <div id="bookDetailView" class="scroll-body" style="display:none;">
+        <div class="box" id="bookDetailCard"></div>
+        <div class="box">
+          <h4 style="margin-bottom:8px; color:var(--primary);">💬 Bình luận & Cảm nhận</h4>
+          <div style="display:flex; gap:8px; margin-bottom:10px;">
+            <input type="text" id="bookCommentInput" placeholder="Viết bình luận về bộ truyện này..." style="margin-bottom:0;" onkeypress="if(event.key==='Enter') addBookComment()">
+            <button class="btn" onclick="addBookComment()">Gửi</button>
+          </div>
+          <div id="bookCommentList" style="display:flex; flex-direction:column; gap:6px;"></div>
+        </div>
+        <div class="box">
+          <h4 style="margin-bottom:10px; color:var(--primary);">📑 Danh sách chương</h4>
+          <div id="detailChapterList" style="display:flex; flex-direction:column; gap:6px;"></div>
+        </div>
+      </div>
+
       <div id="chapterReaderView" class="scroll-body" style="display:none;">
         <div class="box">
-          <h4 style="margin-bottom:8px; color:var(--primary);">➕ Thêm chương / trang mới</h4>
+          <h4 id="chapFormHeading" style="margin-bottom:8px; color:var(--primary);">➕ Thêm chương mới</h4>
           <input type="text" id="chapTitle" placeholder="Tên chương (VD: Chương 1)">
           <textarea id="chapContent" placeholder="Dán nội dung chữ (hoặc chọn trang ảnh)..."></textarea>
           <div class="row-actions">
             <label for="chapImg" class="file-btn" id="chapImgLabel">🖼️ Chọn trang ảnh</label>
             <input type="file" id="chapImg" accept="image/*" onchange="showName('chapImg','chapImgLabel','🖼️ Chọn trang ảnh')">
-            <button class="btn" id="chapSaveBtn" onclick="addChapter()">Đăng chương</button>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-outline" id="cancelEditChapBtn" style="display:none;" onclick="resetChapForm()">Hủy sửa</button>
+              <button class="btn" id="chapSaveBtn" onclick="saveChapter()">Đăng chương</button>
+            </div>
           </div>
         </div>
         <div id="chapterListBar" class="tag-bar"></div>
         <div class="box reader-box" id="chapterDisplayBox" style="display:none;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:10px;">
             <h3 id="currentChapHeading" style="color:var(--primary); font-size:1rem;"></h3>
-            <div style="display:flex; gap:5px;">
+            <div style="display:flex; gap:5px; flex-wrap:wrap;">
+              <button class="btn" id="ttsPlayBtn" onclick="toggleReadAloud('normal')" style="padding:4px 9px; font-size:0.78rem;">🎧 Nghe</button>
+              <button class="btn" id="asmrPlayBtn" onclick="toggleReadAloud('asmr')" style="padding:4px 9px; font-size:0.78rem; background:linear-gradient(135deg,#ec4899,#8b5cf6);">🌸 ASMR JP</button>
+              <button class="btn-outline" id="aiTransBtn" onclick="translateCurrentChapter()" style="border-color:var(--accent); color:var(--accent);">✨ Dịch mượt</button>
+              <button class="btn-outline" id="origChapBtn" onclick="restoreOriginalChapter()" style="display:none;">↺ Gốc</button>
               <button class="btn-outline" onclick="changeFontSize(-2)">A-</button>
               <button class="btn-outline" onclick="changeFontSize(2)">A+</button>
-              <button class="btn-outline" id="aiTransBtn" onclick="translateCurrentChapter()" style="border-color:var(--accent); color:var(--accent);">✨ AI Dịch mượt</button>
-              <button class="btn-outline" id="origChapBtn" onclick="restoreOriginalChapter()" style="display:none;">↺ Bản gốc</button>
               <button class="btn-outline" onclick="toggleSepia()">📜</button>
+              <button class="btn-outline" id="editChapBtn">✏️</button>
               <button class="btn-danger" id="delChapBtn">🗑️</button>
             </div>
           </div>
@@ -297,7 +323,6 @@
             <input type="number" id="customPomoMins" min="1" max="300" placeholder="Phút..." style="width:72px; margin:0; padding:6px 8px; text-align:center;">
             <button class="btn-outline" onclick="applyCustomPomo()">Đặt giờ</button>
           </div>
-
         </div>
         <div class="box">
           <h4 style="margin-bottom:10px; color:var(--primary);" id="todoTitle">✅ Việc cần làm</h4>
@@ -320,7 +345,7 @@
   <script>
     const PROJECT_ID = 'pasqbzlazciysmecmkbu';
     const SUPABASE_URL = 'https://' + PROJECT_ID + '.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhc3FiemxhemNpeXNtZWNta2J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5MDgxOTMsImV4cCI6MjExMDQ4NDE5M30.Ofw8dY0w1Fd0ZpP9Exg8gecfq2cjMern-Y41gNakG7c';
+    const SUPABASE_KEY = 'sb_publishable_5EPRnZi4GIUK0LVGGYtzRw_osHnjeCm';
     let GEMINI_KEY = localStorage.getItem('myspace_gemini_key') || '';
     let currentLang = localStorage.getItem('myspace_lang') || 'vi';
 
@@ -353,23 +378,19 @@
 
     async function analyzeImageWithAI(file) {
       if (!file || !file.type.startsWith('image/')) return currentLang === 'ja' ? '動画 / メディア' : 'Video / Tệp đa phương tiện';
-      if (!GEMINI_KEY) return file.name;
+      if (!GEMINI_KEY || !GEMINI_KEY.startsWith('AIza')) return file.name;
       try {
         const base64Data = await fileToBase64(file);
         const promptText = currentLang === 'ja'
           ? "この画像を日本語で簡潔に説明してください（背景、物体、色、文字などをカンマ区切りで出力）。"
           : "Mô tả ngắn gọn bức ảnh này bằng tiếng Việt (bối cảnh, đồ vật, màu sắc, chữ viết nếu có) dưới dạng từ khóa cách nhau dấu phẩy.";
-
-        const res = await fetch(`https://googleapis.com{encodeURIComponent(GEMINI_KEY)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const res = await fetch('https://googleapis.com' + GEMINI_KEY, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ parts: [{ text: promptText }, { inline_data: { mime_type: file.type, data: base64Data } }] }] })
         });
         if (!res.ok) return file.name;
         const data = await res.json();
-        const cand = data.candidates ? data.candidates.at(0) : null;
-        const part = cand && cand.content && cand.content.parts ? cand.content.parts.at(0) : null;
-        return (part && part.text) ? part.text.trim() : file.name;
+        return data.candidates?.at(0)?.content?.parts?.at(0)?.text?.trim() || file.name;
       } catch (e) { return file.name; }
     }
     function speakText(text) {
@@ -414,7 +435,7 @@
       rec.start();
     }
 
-        async function checkStorageQuota() {
+    async function checkStorageQuota() {
       try {
         const res = await fetch(`${SUPABASE_URL}/storage/v1/object/list/media`, {
           method: 'POST',
@@ -428,9 +449,7 @@
         if (!res.ok) return;
         const files = await res.json();
         let totalBytes = 0;
-        files.forEach(f => {
-          if (f.metadata && f.metadata.size) totalBytes += Number(f.metadata.size);
-        });
+        files.forEach(f => { if (f.metadata && f.metadata.size) totalBytes += Number(f.metadata.size); });
         const usedMB = (totalBytes / (1024 * 1024)).toFixed(2);
         const percent = Math.min(100, (usedMB / 1024) * 100).toFixed(1);
         document.getElementById('quotaText').textContent = `${usedMB} / 1024 MB`;
@@ -509,7 +528,13 @@
       if (file.size > 50 * 1024 * 1024) throw new Error('File > 50MB!');
       const safeName = Date.now() + '_' + Math.random().toString(36).substring(2,6) + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
       const res = await fetch(`${SUPABASE_URL}/storage/v1/object/media/${safeName}`, {
-        method: 'POST', headers: { 'apikey': SUPABASE_KEY,  'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': file.type || 'application/octet-stream' }, body: file
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': file.type || 'application/octet-stream'
+        },
+        body: file
       });
       if (!res.ok) throw new Error(await res.text());
       checkStorageQuota();
@@ -598,13 +623,14 @@
         loadVault();
       } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].saveAiBtn; }
     }
-    let allBooks = [], activeTag = 'All', currentBookId = null, bookChapters = [], currentChapIdx = 0, readerFontSize = 16;
+    let allBooks = [], activeTag = 'All', currentBookId = null, editingBookId = null;
+    let bookChapters = [], currentChapIdx = 0, editingChapId = null, readerFontSize = 16;
+    let originalChapterCache = '', isReadingAloud = false;
 
     function changeFontSize(delta) {
       readerFontSize = Math.max(12, Math.min(28, readerFontSize + delta));
       document.getElementById('currentChapText').style.fontSize = readerFontSize + 'px';
     }
-
     function toggleSepia() { document.getElementById('chapterDisplayBox').classList.toggle('sepia'); }
 
     async function loadLibrary() {
@@ -613,6 +639,7 @@
         if (!res.ok) return;
         allBooks = await res.json();
         renderTags(); renderBooks();
+        if (currentBookId && document.getElementById('bookDetailView').style.display === 'block') openBookDetail(currentBookId);
       } catch (e) {}
     }
 
@@ -632,18 +659,50 @@
     function renderBooks() {
       const feed = document.getElementById('libraryFeed'); feed.innerHTML = '';
       const filtered = activeTag === 'All' ? allBooks : allBooks.filter(b => b.tags && b.tags.toLowerCase().includes(activeTag.toLowerCase()));
+      const defaultCover = 'https://unsplash.com';
+
       filtered.forEach(b => {
-        const tagsHTML = (b.tags || '').split(',').filter(t => t.trim()).map(t => `<span class="book-tag">#${t.trim()}</span>`).join('');
+        const cover = b.file_url || defaultCover;
         const savedChap = localStorage.getItem('read_prog_' + b.id);
-        const progBadge = savedChap !== null ? `<span style="font-size:0.75rem; color:#22c55e;">📌 #${Number(savedChap) + 1}</span>` : '';
-        const div = document.createElement('div'); div.className = 'book-card';
-        const readBtnText = currentLang === 'ja' ? '📖 読む・話の追加' : '📖 Đọc & Thêm chương';
-        div.innerHTML = `<button class="btn-danger" style="position:absolute; top:14px; right:14px;" onclick="deleteItem('library', ${b.id}, loadLibrary)">🗑️</button><div class="book-title">${b.title}</div><div>${tagsHTML} ${progBadge}</div>${b.summary ? `<p style="font-size:0.88rem; margin:6px 0;">${b.summary}</p>` : ''}${b.review ? `<p style="font-size:0.88rem; margin:6px 0; color:var(--text-muted);">${b.review}</p>` : ''}<div style="margin-top:12px; display:flex; gap:10px; align-items:center;"><button class="btn" onclick="openReader(${b.id}, '${b.title.replace(/'/g, "\\'")}')">${readBtnText}</button>${b.file_url ? `<a href="${b.file_url}" target="_blank" style="color:var(--primary); font-size:0.83rem;">📎 File</a>` : ''}</div>`;
+        const progBadge = savedChap !== null ? `<span style="font-size:0.72rem; color:#22c55e;">📌 Đang đọc #${Number(savedChap) + 1}</span>` : '';
+        const div = document.createElement('div');
+        div.className = 'media-card';
+        div.innerHTML = `
+          <img src="${cover}" onclick="openBookDetail(${b.id})" style="cursor:pointer;" title="Bấm xem Review & Bình luận">
+          <div style="font-weight:700; font-size:0.98rem; color:var(--primary); cursor:pointer;" onclick="openBookDetail(${b.id})">${b.title}</div>
+          <div>${progBadge}</div>
+          <div style="display:flex; gap:6px; margin-top:auto; padding-top:6px;">
+            <button class="btn" style="flex:1; padding:6px 10px; font-size:0.8rem;" onclick="openReader(${b.id}, '${b.title.replace(/'/g, "\\'")}')">📖 Đọc ngay</button>
+            <button class="btn-outline" style="padding:6px 9px;" onclick="startEditBook(${b.id})">✏️</button>
+            <button class="btn-danger" style="padding:6px 9px;" onclick="deleteItem('library', ${b.id}, loadLibrary)">🗑️</button>
+          </div>
+        `;
         feed.appendChild(div);
       });
     }
 
-    async function addBook() {
+    function startEditBook(id) {
+      const b = allBooks.find(x => x.id === id);
+      if (!b) return;
+      editingBookId = id;
+      document.getElementById('bookFormTitle').textContent = '✏️ Đang sửa: ' + b.title;
+      document.getElementById('bookTitle').value = b.title || '';
+      document.getElementById('bookTags').value = b.tags || '';
+      document.getElementById('bookSummary').value = b.summary || '';
+      document.getElementById('bookReview').value = b.review || '';
+      document.getElementById('cancelEditBookBtn').style.display = 'inline-block';
+      document.getElementById('libraryListView').scrollTop = 0;
+    }
+
+    function resetBookForm() {
+      editingBookId = null;
+      document.getElementById('bookFormTitle').textContent = '➕ Thêm bộ truyện mới';
+      ['bookTitle','bookTags','bookSummary','bookReview','bookFile'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('bookFileLabel').textContent = '🖼️ Chọn ảnh bìa truyện';
+      document.getElementById('cancelEditBookBtn').style.display = 'none';
+    }
+
+    async function saveBook() {
       const title = document.getElementById('bookTitle').value.trim();
       const tags = document.getElementById('bookTags').value.trim();
       const summary = document.getElementById('bookSummary').value.trim();
@@ -652,13 +711,87 @@
       if (!title) return;
       const btn = document.getElementById('bookSaveBtn'); btn.disabled = true; btn.textContent = '⏳...';
       try {
-        let fileUrl = file ? await uploadFileToCloud(file) : null;
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/library`, { method: 'POST', headers: writeHeaders, body: JSON.stringify({ title, tags, summary, review, file_url: fileUrl }) });
+        const payload = { title, tags, summary, review };
+        if (file) payload.file_url = await uploadFileToCloud(file);
+        const url = editingBookId ? `${SUPABASE_URL}/rest/v1/library?id=eq.${editingBookId}` : `${SUPABASE_URL}/rest/v1/library`;
+        const method = editingBookId ? 'PATCH' : 'POST';
+        const res = await fetch(url, { method, headers: writeHeaders, body: JSON.stringify(payload) });
         if (!res.ok) throw new Error(await res.text());
-        ['bookTitle','bookTags','bookSummary','bookReview','bookFile'].forEach(id => document.getElementById(id).value = '');
-        document.getElementById('bookFileLabel').textContent = dict[currentLang].bookFileLbl;
-        loadLibrary();
-      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].bookSaveBtn; }
+        resetBookForm(); loadLibrary();
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = 'Lưu bộ truyện'; }
+    }
+    async function openBookDetail(bookId) {
+      currentBookId = bookId;
+      const b = allBooks.find(x => x.id === bookId);
+      if (!b) return;
+      document.getElementById('libHeaderTitle').textContent = '📘 ' + b.title;
+      document.getElementById('backToBooksBtn').style.display = 'inline-block';
+      document.getElementById('libraryListView').style.display = 'none';
+      document.getElementById('chapterReaderView').style.display = 'none';
+      document.getElementById('bookDetailView').style.display = 'block';
+
+      const cover = b.file_url || 'https://unsplash.com';
+      const tagsHTML = (b.tags || '').split(',').filter(t => t.trim()).map(t => `<span class="book-tag">#${t.trim()}</span>`).join('');
+      document.getElementById('bookDetailCard').innerHTML = `
+        <div style="display:flex; gap:14px; flex-wrap:wrap;">
+          <img src="${cover}" style="width:120px; height:165px; object-fit:cover; border-radius:10px; flex-shrink:0;">
+          <div style="flex:1; min-width:200px;">
+            <h3 style="color:var(--primary); margin-bottom:6px;">${b.title}</h3>
+            <div style="margin-bottom:8px;">${tagsHTML}</div>
+            <p style="font-size:0.86rem; margin-bottom:6px;"><b>Tóm tắt:</b> ${b.summary || 'Chưa có'}</p>
+            <p style="font-size:0.86rem; color:var(--text-muted); margin-bottom:10px;"><b>Review:</b> ${b.review || 'Chưa có'}</p>
+            <button class="btn" onclick="openReader(${b.id}, '${b.title.replace(/'/g, "\\'")}')">📖 Vào đọc truyện</button>
+          </div>
+        </div>
+      `;
+
+      const cList = document.getElementById('bookCommentList'); cList.innerHTML = '';
+      let comments = [];
+      try { comments = b.comments ? JSON.parse(b.comments) : []; } catch (e) {}
+      comments.forEach(c => {
+        const item = document.createElement('div');
+        item.style = 'background:var(--bg-input); padding:8px 12px; border-radius:10px; font-size:0.85rem;';
+        item.innerHTML = `<b style="color:var(--primary);">${c.user}:</b> ${c.text}`;
+        cList.appendChild(item);
+      });
+
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters?book_id=eq.${bookId}&select=id,chapter_title&order=id.asc`, { headers: readHeaders });
+      const chaps = res.ok ? await res.json() : [];
+      const dList = document.getElementById('detailChapterList'); dList.innerHTML = '';
+      chaps.forEach((c, idx) => {
+        const row = document.createElement('div');
+        row.style = 'background:var(--bg-input); padding:9px 12px; border-radius:10px; cursor:pointer; display:flex; justify-content:space-between;';
+        row.innerHTML = `<span>${c.chapter_title || ('Chương ' + (idx + 1))}</span><span style="color:var(--primary); font-size:0.8rem;">Đọc →</span>`;
+        row.onclick = () => { localStorage.setItem('read_prog_' + bookId, idx); openReader(bookId, b.title); };
+        dList.appendChild(row);
+      });
+    }
+
+    async function addBookComment() {
+      const inp = document.getElementById('bookCommentInput');
+      const text = inp.value.trim();
+      if (!text || !currentBookId) return;
+      const b = allBooks.find(x => x.id === currentBookId);
+      let comments = [];
+      try { comments = b.comments ? JSON.parse(b.comments) : []; } catch (e) {}
+      const user = localStorage.getItem('myspace_username') || 'Độc giả';
+      comments.unshift({ user, text });
+      inp.value = '';
+      await fetch(`${SUPABASE_URL}/rest/v1/library?id=eq.${currentBookId}`, {
+        method: 'PATCH', headers: writeHeaders, body: JSON.stringify({ comments: JSON.stringify(comments) })
+      });
+      loadLibrary();
+    }
+
+    function closeLibrarySubViews() {
+      stopReadAloud();
+      currentBookId = null;
+      document.getElementById('libHeaderTitle').textContent = dict[currentLang].libTitle;
+      document.getElementById('backToBooksBtn').style.display = 'none';
+      document.getElementById('libraryListView').style.display = 'block';
+      document.getElementById('bookDetailView').style.display = 'none';
+      document.getElementById('chapterReaderView').style.display = 'none';
+      renderBooks();
     }
 
     async function openReader(bookId, title) {
@@ -667,17 +800,9 @@
       document.getElementById('libHeaderTitle').textContent = '📖 ' + title;
       document.getElementById('backToBooksBtn').style.display = 'inline-block';
       document.getElementById('libraryListView').style.display = 'none';
+      document.getElementById('bookDetailView').style.display = 'none';
       document.getElementById('chapterReaderView').style.display = 'block';
       loadChapters();
-    }
-
-    function closeReader() {
-      currentBookId = null;
-      document.getElementById('libHeaderTitle').textContent = dict[currentLang].libTitle;
-      document.getElementById('backToBooksBtn').style.display = 'none';
-      document.getElementById('libraryListView').style.display = 'block';
-      document.getElementById('chapterReaderView').style.display = 'none';
-      renderBooks();
     }
 
     async function loadChapters() {
@@ -696,7 +821,7 @@
       else document.getElementById('chapterDisplayBox').style.display = 'none';
     }
 
-        function showChapter(idx) {
+    function showChapter(idx) {
       originalChapterCache = '';
       document.getElementById('origChapBtn').style.display = 'none';
       currentChapIdx = idx;
@@ -707,75 +832,31 @@
       const isImg = chap.content && chap.content.startsWith('IMG_URL:');
       document.getElementById('currentChapMedia').innerHTML = isImg ? `<img src="${chap.content.replace('IMG_URL:','')}" style="max-width:100%; border-radius:10px;">` : '';
       document.getElementById('currentChapText').textContent = isImg ? '' : (chap.content || '');
+      document.getElementById('editChapBtn').onclick = () => startEditChapter(chap);
       document.getElementById('delChapBtn').onclick = () => deleteItem('chapters', chap.id, loadChapters);
       document.querySelectorAll('#chapterListBar .tag-chip').forEach((el, i) => el.classList.toggle('active', i === idx));
-    }
-    let originalChapterCache = '';
-
-            async function translateCurrentChapter() {
-      const textEl = document.getElementById('currentChapText');
-      const rawText = textEl.textContent.trim();
-      if (!rawText) return;
-
-      if (!originalChapterCache) originalChapterCache = rawText;
-      const btn = document.getElementById('aiTransBtn');
-      btn.disabled = true;
-      btn.textContent = currentLang === 'ja' ? '⏳ 翻訳中...' : '⏳ Đang dịch mượt...';
-
-      try {
-        let translated = '';
-        if (GEMINI_KEY && GEMINI_KEY.startsWith('AIza')) {
-          const prompt = (currentLang === 'ja')
-            ? "以下の物語を自然な日本語に翻訳・編集してください：\n\n" + originalChapterCache
-            : "Biên tập và dịch lại đoạn truyện sau sang tiếng Việt thật mượt mà, tự nhiên, giữ đúng xưng hô nhân vật:\n\n" + originalChapterCache;
-          const gemHost = 'https://googleapis.com';
-          const gemPath = '/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_KEY;
-          const res = await fetch(gemHost + gemPath, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            translated = data.candidates?.at(0)?.content?.parts?.at(0)?.text || '';
-          }
-        }
-
-        if (!translated) {
-          const targetLang = (currentLang === 'ja') ? 'ja' : 'vi';
-          const trHost = 'https://googleapis.com';
-          const trPath = '/translate_a/single?client=gtx&sl=auto&tl=' + targetLang + '&dt=t&q=';
-          const res = await fetch(trHost + trPath + encodeURIComponent(originalChapterCache.slice(0, 4500)));
-          if (!res.ok) throw new Error('Không thể kết nối máy chủ dịch');
-          const data = await res.json();
-          translated = data.at(0).map(item => item.at(0)).join('');
-        }
-
-        if (translated) {
-          textEl.textContent = translated.trim();
-          document.getElementById('origChapBtn').style.display = 'inline-block';
-        }
-      } catch (e) {
-        alert('Lỗi dịch: ' + e.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = currentLang === 'ja' ? '✨ AI翻訳' : '✨ AI Dịch mượt';
-      }
+      if (isReadingAloud) startReadAloud(currentReadMode);
     }
 
-    function restoreOriginalChapter() {
-      if (originalChapterCache) {
-        document.getElementById('currentChapText').textContent = originalChapterCache;
-        document.getElementById('origChapBtn').style.display = 'none';
-      }
+    function startEditChapter(chap) {
+      editingChapId = chap.id;
+      document.getElementById('chapFormHeading').textContent = '✏️ Đang sửa: ' + (chap.chapter_title || '');
+      document.getElementById('chapTitle').value = chap.chapter_title || '';
+      const isImg = chap.content && chap.content.startsWith('IMG_URL:');
+      document.getElementById('chapContent').value = isImg ? '' : (chap.content || '');
+      document.getElementById('cancelEditChapBtn').style.display = 'inline-block';
+      document.getElementById('chapterReaderView').scrollTop = 0;
     }
 
-    function navChapter(step) {
-      const next = currentChapIdx + step;
-      if (next >= 0 && next < bookChapters.length) showChapter(next);
+    function resetChapForm() {
+      editingChapId = null;
+      document.getElementById('chapFormHeading').textContent = '➕ Thêm chương mới';
+      ['chapTitle','chapContent','chapImg'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('chapImgLabel').textContent = '🖼️ Chọn trang ảnh';
+      document.getElementById('cancelEditChapBtn').style.display = 'none';
     }
 
-    async function addChapter() {
+    async function saveChapter() {
       const title = document.getElementById('chapTitle').value.trim();
       let content = document.getElementById('chapContent').value.trim();
       const file = document.getElementById('chapImg').files.item(0);
@@ -783,14 +864,113 @@
       const btn = document.getElementById('chapSaveBtn'); btn.disabled = true; btn.textContent = '⏳...';
       try {
         if (file) content = 'IMG_URL:' + await uploadFileToCloud(file);
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters`, { method: 'POST', headers: writeHeaders, body: JSON.stringify({ book_id: currentBookId, chapter_title: title || ('#' + (bookChapters.length + 1)), content }) });
-        if (!res.ok) throw new Error(await res.text());
-        ['chapTitle','chapContent','chapImg'].forEach(id => document.getElementById(id).value = '');
-        document.getElementById('chapImgLabel').textContent = dict[currentLang].chapImgLbl;
-        currentChapIdx = bookChapters.length;
-        loadChapters();
-      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].chapSaveBtn; }
+        const payload = { chapter_title: title || ('Chương ' + (bookChapters.length + 1)) };
+        if (content) payload.content = content;
+        if (editingChapId) {
+          const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters?id=eq.${editingChapId}`, { method: 'PATCH', headers: writeHeaders, body: JSON.stringify(payload) });
+          if (!res.ok) throw new Error(await res.text());
+        } else {
+          payload.book_id = currentBookId;
+          const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters`, { method: 'POST', headers: writeHeaders, body: JSON.stringify(payload) });
+          if (!res.ok) throw new Error(await res.text());
+          currentChapIdx = bookChapters.length;
+        }
+        resetChapForm(); loadChapters();
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = 'Đăng chương'; }
     }
+
+    function navChapter(step) {
+      const next = currentChapIdx + step;
+      if (next >= 0 && next < bookChapters.length) showChapter(next);
+    }
+
+    // KỂ TRUYỆN GIỌNG ASMR NHẬT BẢN & ĐỌC NỀN TỰ LẬT CHƯƠNG
+    let currentReadMode = 'normal';
+    function toggleReadAloud(mode) {
+      if (isReadingAloud && currentReadMode === mode) stopReadAloud();
+      else startReadAloud(mode);
+    }
+
+    function startReadAloud(mode) {
+      const text = document.getElementById('currentChapText').textContent.trim();
+      if (!text || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      isReadingAloud = true;
+      currentReadMode = mode;
+
+      document.getElementById('ttsPlayBtn').textContent = mode === 'normal' ? '⏹ Dừng' : '🎧 Nghe';document.getElementById('asmrPlayBtn').textContent = mode === 'asmr' ? '⏹ Dừng ASMR' : '🌸 ASMR JP';
+const utter = new SpeechSynthesisUtterance(text);
+if (mode === 'asmr') {
+utter.lang = 'ja-JP';
+utter.rate = 0.85; // Nhịp kể chậm rãi, êm ái chuẩn phong cách ASMR Nhật
+utter.pitch = 1.08; // Tông giọng nhẹ nhàng, thì thầm
+const voices = window.speechSynthesis.getVoices();
+const jpFemale = voices.find(v => v.lang.includes('ja') && (v.name.includes('Nanami') || v.name.includes('Kyoko') || v.name.includes('Haruka') || v.name.includes('Google')));
+if (jpFemale) utter.voice = jpFemale;
+} else {
+utter.lang = (currentLang === 'ja') ? 'ja-JP' : 'vi-VN';
+utter.rate = 1.05;
+}
+utter.onend = () => {
+if (isReadingAloud && currentChapIdx + 1 < bookChapters.length) navChapter(1);
+else stopReadAloud();
+};
+window.speechSynthesis.speak(utter);
+}
+function stopReadAloud() {
+isReadingAloud = false;
+if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+document.getElementById('ttsPlayBtn').textContent = '🎧 Nghe';
+document.getElementById('asmrPlayBtn').textContent = '🌸 ASMR JP';
+}
+function polishStoryStyle(text) {
+return text
+.replace(/\bta này\b/gi, 'tôi').replace(/\bhắn ta\b/gi, 'anh ta')
+.replace(/\bnàng ta\b/gi, 'cô ấy').replace(/\bnhà trẻ\b/gi, 'trường mẫu giáo')
+.replace(/\btiểu bằng hữu\b/gi, 'bạn nhỏ').replace(/\btiểu hài tử\b/gi, 'đứa trẻ')
+.replace(/\bkí sự\b/gi, 'ký ức').replace(/\s+\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+}
+async function translateCurrentChapter() {
+const textEl = document.getElementById('currentChapText');
+const rawText = textEl.textContent.trim();
+if (!rawText) return;
+if (!originalChapterCache) originalChapterCache = rawText;
+const btn = document.getElementById('aiTransBtn');
+btn.disabled = true; btn.textContent = '⏳...';
+try {
+let translated = '';
+const isVietnamese = /[ăâđêôơưàảãáạằẳẵắặầẩẫấậèẻẽéẹềểễếệìỉĩíịòỏõóọồổỗốộờởỡớợùủũúụừửữứựỳỷỹýỵ]/i.test(originalChapterCache);
+if (isVietnamese && currentLang === 'vi') {
+translated = polishStoryStyle(originalChapterCache);
+} else {
+const targetLang = (currentLang === 'ja') ? 'ja' : 'vi';
+const lines = originalChapterCache.split('\n').filter(l => l.trim());
+const outLines = [];
+for (let i = 0; i < Math.min(lines.length, 25); i++) {
+const line = lines.at(i).slice(0, 450);
+const res = await fetch('translated.net' + encodeURIComponent(line) + '&langpair=Autodetect|' + targetLang);
+if (res.ok) {
+const data = await res.json();
+outLines.push(data.responseData?.translatedText || line);
+} else outLines.push(line);
+}
+translated = outLines.join('\n\n');
+}
+if (translated) {
+textEl.textContent = translated.trim();
+document.getElementById('origChapBtn').style.display = 'inline-block';
+}
+} catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = '✨ Dịch mượt'; }
+}
+    function restoreOriginalChapter() {
+if (originalChapterCache) {
+document.getElementById('currentChapText').textContent = originalChapterCache;
+document.getElementById('origChapBtn').style.display = 'none';
+}
+}
+
+
+html
     let allSongs = [], activePlaylist = 'All', filteredSongs = [], currentSongIdx = -1, isMusicPlaying = false;
 
     function getCleanYtId(rawStr) {
@@ -832,8 +1012,8 @@
       filteredSongs.forEach((s, idx) => {
         const div = document.createElement('div'); div.className = 'song-item';
         const isYt = s.audio_url && (s.audio_url.startsWith('YT:') || s.audio_url.includes('youtu'));
-        const finalLink = s.audio_url.startsWith('http') ? s.audio_url : ('https://youtube.com' + getCleanYtId(s.audio_url));
-        div.innerHTML = `
+        const finalLink = s.audio_url.startsWith('http') ? s.audio_url : ('https://www.youtube.com/watch?v=' + getCleanYtId(s.audio_url));
+        div.innerHTML = 
           <div style="display:flex; align-items:center; gap:10px; overflow:hidden; flex:1;">
             <button class="music-btn" onclick="playSongAt(${idx})">▶</button>
             <div style="overflow:hidden; flex:1;">
@@ -845,7 +1025,7 @@
             <a href="${finalLink}" target="_blank" rel="noopener noreferrer" class="btn-outline" style="text-decoration:none; padding:4px 8px; font-size:0.75rem;">↗ Link</a>
             <button class="btn-danger" onclick="deleteItem('songs', ${s.id}, loadSongs)">🗑️</button>
           </div>
-        `;
+        ;
         feed.appendChild(div);
       });
     }
@@ -866,27 +1046,24 @@
         loadSongs();
       } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].songSaveBtn; }
     }
-        function playSongAt(idx) {
+
+    function playSongAt(idx) {
       if (filteredSongs.length === 0) return;
       currentSongIdx = (idx + filteredSongs.length) % filteredSongs.length;
       const song = filteredSongs.at(currentSongIdx);
       const mp3 = document.getElementById('mp3Player');
       const ytBox = document.getElementById('ytHiddenBox');
 
-      mp3.pause(); mp3.src = '';
-      ytBox.innerHTML = '';
-      ytBox.style.cssText = 'display:none;';
+      mp3.pause(); mp3.src = ''; ytBox.innerHTML = ''; ytBox.style.cssText = 'display:none;';
 
       const isYt = song.audio_url && (song.audio_url.startsWith('YT:') || song.audio_url.includes('youtu'));
       if (isYt) {
-        // Mở thẳng link YouTube gốc sang tab mới / App YouTube (không bao giờ bị lỗi mặt buồn)
-        const targetUrl = song.audio_url.startsWith('http') ? song.audio_url : ('https://youtube.com' + getCleanYtId(song.audio_url));
+        const targetUrl = song.audio_url.startsWith('http') ? song.audio_url : ('https://www.youtube.com/watch?v=' + getCleanYtId(song.audio_url));
         window.open(targetUrl, '_blank', 'noopener,noreferrer');
         document.getElementById('miniSongTitle').textContent = '↗ ' + song.title;
         document.getElementById('miniPlayBtn').textContent = '▶';
         isMusicPlaying = false;
       } else {
-        // Phát file MP3 trực tiếp + Hiện thanh tắt/mở nổi rõ ràng cho cả Điện thoại lẫn PC
         mp3.src = song.audio_url;
         mp3.play();
         document.getElementById('miniSongTitle').textContent = '🎵 ' + song.title;
@@ -895,10 +1072,10 @@
 
         ytBox.style.cssText = 'position:fixed; bottom:68px; right:12px; left:12px; max-width:340px; margin-left:auto; z-index:999; background:var(--bg-card); border:1.5px solid var(--primary); border-radius:12px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between; gap:10px; box-shadow:0 6px 20px rgba(0,0,0,0.6);';
         ytBox.innerHTML = 
-          '<span style="font-size:0.82rem; font-weight:600; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">🎵 ' + song.title + '</span>' +
-          '<div style="display:flex; gap:6px; flex-shrink:0;">' +
-            '<button onclick="toggleMiniPlay()" style="background:var(--primary); color:#fff; border:none; border-radius:8px; padding:4px 10px; font-size:0.78rem; font-weight:600; cursor:pointer;">⏯</button>' +
-            '<button onclick="closeYtPlayer()" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:4px 10px; font-size:0.78rem; font-weight:700; cursor:pointer;">✕ Tắt</button>' +
+          <span style="font-size:0.82rem; font-weight:600; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">🎵 ' + song.title + '</span>' +
+          <div style="display:flex; gap:6px; flex-shrink:0;">' +
+            <button onclick="toggleMiniPlay()" style="background:var(--primary); color:#fff; border:none; border-radius:8px; padding:4px 10px; font-size:0.78rem; font-weight:600; cursor:pointer;">⏯</button>' +
+            <button onclick="closeYtPlayer()" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:4px 10px; font-size:0.78rem; font-weight:700; cursor:pointer;">✕ Tắt</button>' +
           '</div>';
       }
     }
@@ -906,10 +1083,7 @@
     function closeYtPlayer() {
       const mp3 = document.getElementById('mp3Player');
       const ytBox = document.getElementById('ytHiddenBox');
-      mp3.pause();
-      mp3.src = '';
-      ytBox.innerHTML = '';
-      ytBox.style.cssText = 'display:none;';
+      mp3.pause(); mp3.src = ''; ytBox.innerHTML = ''; ytBox.style.cssText = 'display:none;';
       document.getElementById('miniPlayBtn').textContent = '▶';
       isMusicPlaying = false;
     }
@@ -918,19 +1092,10 @@
       if (currentSongIdx === -1 && filteredSongs.length > 0) return playSongAt(0);
       if (currentSongIdx === -1) return;
       const mp3 = document.getElementById('mp3Player');
-      if (isMusicPlaying) {
-        mp3.pause();
-        document.getElementById('miniPlayBtn').textContent = '▶';
-        isMusicPlaying = false;
-      } else {
-        mp3.play();
-        document.getElementById('miniPlayBtn').textContent = '⏸';
-        isMusicPlaying = true;
-      }
+      if (isMusicPlaying) { mp3.pause(); document.getElementById('miniPlayBtn').textContent = '▶'; isMusicPlaying = false; }
+      else { mp3.play(); document.getElementById('miniPlayBtn').textContent = '⏸'; isMusicPlaying = true; }
     }
 
-    
-    function playNextSong() { if (filteredSongs.length > 0) playSongAt(currentSongIdx + 1); }
     let replyPrefix = '';
     function setReply(sender, text) {
       replyPrefix = `↪ [${sender}: ${text.slice(0, 25)}...] `;
@@ -1004,13 +1169,12 @@
       const s = String(pomoSeconds % 60).padStart(2, '0');
       document.getElementById('pomoDisplay').textContent = `${m}:${s}`;
     }
-        function applyCustomPomo() {
+    function applyCustomPomo() {
       const val = parseInt(document.getElementById('customPomoMins').value, 10);
       if (!val || val <= 0) return alert(currentLang === 'ja' ? '1分以上の数字を入力してください' : 'Hãy nhập số phút lớn hơn 0!');
       setPomoMode(val);
       document.getElementById('pomoStatus').textContent = currentLang === 'ja' ? `カスタムタイマー (${val}分)` : `Hẹn giờ tùy chỉnh (${val} phút)`;
     }
-
     function setPomoMode(mins) {
       clearInterval(pomoTimer); isPomoRunning = false;
       pomoSeconds = mins * 60;
@@ -1061,12 +1225,12 @@
         navVault: 'Kho ảnh AI', navLib: 'Tàng thư viện', navMusic: 'Kho nhạc', navChat: 'Phòng chat', navTools: 'Tiện ích',
         quota: '💾 Kho lưu trữ', bgBtn: '🖼️ Đổi ảnh nền',
         vaultTitle: '🔒 Kho Ảnh AI', privateArea: 'Khu vực riêng tư', userPh: 'Tên tài khoản...', pinPh: 'Mã PIN bí mật...', unlockBtn: 'Mở kho của tôi',
-        searchPh: 'Mô tả ảnh nhớ mang máng (VD: mèo vàng, bầu trời...)', notePh: 'Ghi chú thêm (AI tự động phân tích ảnh)...',
+        searchPh: 'Mô tả ảnh bạn nhớ mang máng (VD: mèo vàng, bầu trời...)', notePh: 'Ghi chú thêm (AI tự động phân tích ảnh)...',
         pickMedia: '📎 Chọn 1 hoặc nhiều ảnh/video', saveAiBtn: 'Lưu & AI quét',
-        libTitle: '📚 Tàng thư viện', backBtn: '← Danh sách',
+        libTitle: '📚 Tàng thư viện', backBtn: '← Quay lại',
         bookTitlePh: 'Tên bộ truyện...', bookTagsPh: 'Tag thể loại (VD: Tiên hiệp, Anime)', bookSumPh: 'Tóm tắt cơ bản...', bookRevPh: 'Review & Đánh giá...',
-        bookFileLbl: '🖼️ Ảnh bìa / File', bookSaveBtn: 'Tạo truyện',
-        addChapTitle: '➕ Thêm chương / trang mới', chapTitlePh: 'Tên chương (VD: Chương 1)', chapContPh: 'Dán nội dung chữ (hoặc chọn trang ảnh)...',
+        bookFileLbl: '🖼️ Chọn ảnh bìa truyện', bookSaveBtn: 'Lưu bộ truyện',
+        chapTitlePh: 'Tên chương (VD: Chương 1)', chapContPh: 'Dán nội dung chữ (hoặc chọn trang ảnh)...',
         chapImgLbl: '🖼️ Chọn trang ảnh', chapSaveBtn: 'Đăng chương',
         musicTitle: '🎵 Kho nhạc', songTitlePh: 'Tên bài hát...', songPlPh: 'Tên Playlist (VD: Anime Chill, Remix)',
         songYtPh: 'Dán link YouTube (Tốn 0MB)...', songFileLbl: '🎧 Hoặc file MP3', songSaveBtn: 'Thêm nhạc',
@@ -1079,10 +1243,10 @@
         vaultTitle: '🔒 AIフォト保管庫', privateArea: 'プライベートエリア', userPh: 'アカウント名...', pinPh: '暗証番号 (PIN)...', unlockBtn: 'ロック解除',
         searchPh: '覚えている画像の特徴を入力（例：黄色い猫、空...）', notePh: 'メモを追加（AIが自動で画像を解析します）...',
         pickMedia: '📎 画像・動画を選択（複数可）', saveAiBtn: '保存＆AI解析',
-        libTitle: '📚 デジタル図書館', backBtn: '← 一覧へ',
+        libTitle: '📚 デジタル図書館', backBtn: '← 戻る',
         bookTitlePh: '作品タイトル...', bookTagsPh: 'ジャンルタグ（例：ファンタジー、アニメ）', bookSumPh: 'あらすじ・概要...', bookRevPh: 'レビュー・感想...',
-        bookFileLbl: '🖼️ 表紙・添付ファイル', bookSaveBtn: '作品を作成',
-        addChapTitle: '➕ 新しい話・ページを追加', chapTitlePh: '話数・タイトル（例：第1話）', chapContPh: '本文を入力（画像ページの場合は空欄）...',
+        bookFileLbl: '🖼️ 表紙画像を選択', bookSaveBtn: '作品を保存',
+        chapTitlePh: '話数・タイトル（例：第1話）', chapContPh: '本文を入力（画像ページの場合は空欄）...',
         chapImgLbl: '🖼️ 画像ページを選択', chapSaveBtn: '投稿する',
         musicTitle: '🎵 音楽＆プレイリスト', songTitlePh: '曲名...', songPlPh: 'プレイリスト名（例：アニメChill、BGM）',
         songYtPh: 'YouTubeリンク（容量0MB）...', songFileLbl: '🎧 またはMP3ファイル', songSaveBtn: '曲を追加',
@@ -1124,7 +1288,6 @@
       document.getElementById('bookReview').placeholder = t.bookRevPh;
       document.getElementById('bookFileLabel').textContent = t.bookFileLbl;
       document.getElementById('bookSaveBtn').textContent = t.bookSaveBtn;
-      document.querySelector('#chapterReaderView h4').textContent = t.addChapTitle;
       document.getElementById('chapTitle').placeholder = t.chapTitlePh;
       document.getElementById('chapContent').placeholder = t.chapContPh;
       document.getElementById('chapImgLabel').textContent = t.chapImgLbl;
@@ -1148,6 +1311,7 @@
       renderTags(); renderBooks(); renderPlaylists(); renderSongs();
     }
 
+    if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
     setLang(currentLang); renderTodos();
     checkStorageQuota(); loadLibrary(); loadSongs(); loadChat(); setInterval(loadChat, 2500);
   </script>

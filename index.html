@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>MySpace AI Hub</title>
+  <title>MySpace Personal Hub</title>
   <link href="https://googleapis.com" rel="stylesheet">
   <style>
     :root[data-theme="dark"] {
@@ -114,10 +114,10 @@
 
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <span class="brand-text">⚡ MySpace AI</span>
+      <span class="brand-text">⚡ MySpace Hub</span>
       <button class="toggle-btn" onclick="toggleMenu()">☰</button>
     </div>
-    <button class="nav-item active" onclick="openTab('vault', this)"><span>🔒</span><span class="nav-text">Kho ảnh AI</span></button>
+    <button class="nav-item active" onclick="openTab('vault', this)"><span>🔒</span><span class="nav-text">Thư mục cá nhân</span></button>
     <button class="nav-item" onclick="openTab('library', this)"><span>📚</span><span class="nav-text">Tàng thư viện</span></button>
     <button class="nav-item" onclick="openTab('music', this)"><span>🎵</span><span class="nav-text">Kho nhạc</span></button>
     <button class="nav-item" onclick="openTab('chat', this)"><span>💬</span><span class="nav-text">Phòng chat</span></button>
@@ -156,7 +156,7 @@
   <main class="main-area">
     <section id="tab-vault" class="tab-pane active">
       <div class="top-bar">
-        <h2 id="vaultHeaderTitle" style="font-size:1rem;">🔒 Kho Ảnh AI</h2>
+        <h2 id="vaultHeaderTitle" style="font-size:1rem;">🔒 Thư mục cá nhân</h2>
         <div style="display:flex; gap:5px; align-items:center;">
           <button class="btn-outline" style="padding:4px 7px; font-size:0.72rem;" onclick="cycleThemeMobile()">🎨</button>
           <button class="btn-outline" style="padding:4px 7px; font-size:0.72rem;" onclick="toggleLangMobile()">🇻🇳/🇯🇵</button>
@@ -170,7 +170,7 @@
           <h3 style="margin-bottom:14px;">Khu vực riêng tư</h3>
           <input type="text" id="vaultUser" placeholder="Tên tài khoản...">
           <input type="password" id="pinInput" placeholder="Mã PIN bí mật..." onkeypress="if(event.key==='Enter') unlockVault()">
-          <button class="btn" style="width:100%;" onclick="unlockVault()">Mở kho của tôi</button>
+          <button class="btn" style="width:100%;" onclick="unlockVault()">Mở thư mục</button>
         </div>
       </div>
       <div id="vaultContent" class="scroll-body" style="display:none;">
@@ -231,7 +231,6 @@
           <div id="detailChapterList" style="display:flex; flex-direction:column; gap:6px;"></div>
         </div>
       </div>
-
       <div id="chapterReaderView" class="scroll-body" style="display:none;">
         <div class="box">
           <h4 id="chapFormHeading" style="margin-bottom:8px; color:var(--primary);">➕ Thêm chương mới</h4>
@@ -271,6 +270,7 @@
         </div>
       </div>
     </section>
+
     <section id="tab-music" class="tab-pane">
       <div class="top-bar">
         <h2 style="font-size:1rem;">🎵 Kho nhạc</h2>
@@ -291,7 +291,6 @@
         <div id="songListFeed"></div>
       </div>
     </section>
-
     <section id="tab-chat" class="tab-pane">
       <div class="top-bar">
         <h2 style="font-size:1rem;">💬 Phòng chat</h2>
@@ -625,7 +624,7 @@
     }
     let allBooks = [], activeTag = 'All', currentBookId = null, editingBookId = null;
     let bookChapters = [], currentChapIdx = 0, editingChapId = null, readerFontSize = 16;
-    let originalChapterCache = '', isReadingAloud = false;
+    let originalChapterCache = '', isReadingAloud = false, currentReadMode = 'normal';
 
     function changeFontSize(delta) {
       readerFontSize = Math.max(12, Math.min(28, readerFontSize + delta));
@@ -731,19 +730,18 @@
       document.getElementById('bookDetailView').style.display = 'block';
 
       const cover = b.file_url || 'https://unsplash.com';
-      const tagsHTML = (b.tags || '').split(',').filter(t => t.trim()).map(t => `<span class="book-tag">#${t.trim()}</span>`).join('');
-      document.getElementById('bookDetailCard').innerHTML = `
-        <div style="display:flex; gap:14px; flex-wrap:wrap;">
-          <img src="${cover}" style="width:120px; height:165px; object-fit:cover; border-radius:10px; flex-shrink:0;">
-          <div style="flex:1; min-width:200px;">
-            <h3 style="color:var(--primary); margin-bottom:6px;">${b.title}</h3>
-            <div style="margin-bottom:8px;">${tagsHTML}</div>
-            <p style="font-size:0.86rem; margin-bottom:6px;"><b>Tóm tắt:</b> ${b.summary || 'Chưa có'}</p>
-            <p style="font-size:0.86rem; color:var(--text-muted); margin-bottom:10px;"><b>Review:</b> ${b.review || 'Chưa có'}</p>
-            <button class="btn" onclick="openReader(${b.id}, '${b.title.replace(/'/g, "\\'")}')">📖 Vào đọc truyện</button>
-          </div>
-        </div>
-      `;
+      const tagsHTML = (b.tags || '').split(',').filter(t => t.trim()).map(t => '<span class="book-tag">#' + t.trim() + '</span>').join('');
+      document.getElementById('bookDetailCard').innerHTML =
+        '<div style="display:flex; gap:14px; flex-wrap:wrap;">' +
+          '<img src="' + cover + '" style="width:120px; height:165px; object-fit:cover; border-radius:10px; flex-shrink:0;">' +
+          '<div style="flex:1; min-width:200px;">' +
+            '<h3 style="color:var(--primary); margin-bottom:6px;">' + b.title + '</h3>' +
+            '<div style="margin-bottom:8px;">' + tagsHTML + '</div>' +
+            '<p style="font-size:0.86rem; margin-bottom:6px;"><b>Tóm tắt:</b> ' + (b.summary || 'Chưa có') + '</p>' +
+            '<p style="font-size:0.86rem; color:var(--text-muted); margin-bottom:10px;"><b>Review:</b> ' + (b.review || 'Chưa có') + '</p>' +
+            '<button class="btn" onclick="openReader(' + b.id + ', \'' + b.title.replace(/'/g, "\\'") + '\')">📖 Vào đọc truyện</button>' +
+          '</div>' +
+        '</div>';
 
       const cList = document.getElementById('bookCommentList'); cList.innerHTML = '';
       let comments = [];
@@ -751,17 +749,16 @@
       comments.forEach(c => {
         const item = document.createElement('div');
         item.style = 'background:var(--bg-input); padding:8px 12px; border-radius:10px; font-size:0.85rem;';
-        item.innerHTML = `<b style="color:var(--primary);">${c.user}:</b> ${c.text}`;
+        item.innerHTML = '<b style="color:var(--primary);">' + c.user + ':</b> ' + c.text;
         cList.appendChild(item);
       });
-
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters?book_id=eq.${bookId}&select=id,chapter_title&order=id.asc`, { headers: readHeaders });
+      const res = await fetch(SUPABASE_URL + '/rest/v1/chapters?book_id=eq.' + bookId + '&select=id,chapter_title&order=id.asc', { headers: readHeaders });
       const chaps = res.ok ? await res.json() : [];
       const dList = document.getElementById('detailChapterList'); dList.innerHTML = '';
       chaps.forEach((c, idx) => {
         const row = document.createElement('div');
         row.style = 'background:var(--bg-input); padding:9px 12px; border-radius:10px; cursor:pointer; display:flex; justify-content:space-between;';
-        row.innerHTML = `<span>${c.chapter_title || ('Chương ' + (idx + 1))}</span><span style="color:var(--primary); font-size:0.8rem;">Đọc →</span>`;
+        row.innerHTML = '<span>' + (c.chapter_title || ('Chương ' + (idx + 1))) + '</span><span style="color:var(--primary); font-size:0.8rem;">Đọc →</span>';
         row.onclick = () => { localStorage.setItem('read_prog_' + bookId, idx); openReader(bookId, b.title); };
         dList.appendChild(row);
       });
@@ -777,7 +774,7 @@
       const user = localStorage.getItem('myspace_username') || 'Độc giả';
       comments.unshift({ user, text });
       inp.value = '';
-      await fetch(`${SUPABASE_URL}/rest/v1/library?id=eq.${currentBookId}`, {
+      await fetch(SUPABASE_URL + '/rest/v1/library?id=eq.' + currentBookId, {
         method: 'PATCH', headers: writeHeaders, body: JSON.stringify({ comments: JSON.stringify(comments) })
       });
       loadLibrary();
@@ -804,9 +801,8 @@
       document.getElementById('chapterReaderView').style.display = 'block';
       loadChapters();
     }
-
     async function loadChapters() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters?book_id=eq.${currentBookId}&select=*&order=id.asc`, { headers: readHeaders });
+      const res = await fetch(SUPABASE_URL + '/rest/v1/chapters?book_id=eq.' + currentBookId + '&select=*&order=id.asc', { headers: readHeaders });
       if (!res.ok) return;
       bookChapters = await res.json();
       const bar = document.getElementById('chapterListBar'); bar.innerHTML = '';
@@ -830,7 +826,7 @@
       document.getElementById('chapterDisplayBox').style.display = 'block';
       document.getElementById('currentChapHeading').textContent = chap.chapter_title || ('#' + (idx + 1));
       const isImg = chap.content && chap.content.startsWith('IMG_URL:');
-      document.getElementById('currentChapMedia').innerHTML = isImg ? `<img src="${chap.content.replace('IMG_URL:','')}" style="max-width:100%; border-radius:10px;">` : '';
+      document.getElementById('currentChapMedia').innerHTML = isImg ? '<img src="' + chap.content.replace('IMG_URL:', '') + '" style="max-width:100%; border-radius:10px;">' : '';
       document.getElementById('currentChapText').textContent = isImg ? '' : (chap.content || '');
       document.getElementById('editChapBtn').onclick = () => startEditChapter(chap);
       document.getElementById('delChapBtn').onclick = () => deleteItem('chapters', chap.id, loadChapters);
@@ -855,7 +851,6 @@
       document.getElementById('chapImgLabel').textContent = '🖼️ Chọn trang ảnh';
       document.getElementById('cancelEditChapBtn').style.display = 'none';
     }
-
     async function saveChapter() {
       const title = document.getElementById('chapTitle').value.trim();
       let content = document.getElementById('chapContent').value.trim();
@@ -867,11 +862,11 @@
         const payload = { chapter_title: title || ('Chương ' + (bookChapters.length + 1)) };
         if (content) payload.content = content;
         if (editingChapId) {
-          const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters?id=eq.${editingChapId}`, { method: 'PATCH', headers: writeHeaders, body: JSON.stringify(payload) });
+          const res = await fetch(SUPABASE_URL + '/rest/v1/chapters?id=eq.' + editingChapId, { method: 'PATCH', headers: writeHeaders, body: JSON.stringify(payload) });
           if (!res.ok) throw new Error(await res.text());
         } else {
           payload.book_id = currentBookId;
-          const res = await fetch(`${SUPABASE_URL}/rest/v1/chapters`, { method: 'POST', headers: writeHeaders, body: JSON.stringify(payload) });
+          const res = await fetch(SUPABASE_URL + '/rest/v1/chapters', { method: 'POST', headers: writeHeaders, body: JSON.stringify(payload) });
           if (!res.ok) throw new Error(await res.text());
           currentChapIdx = bookChapters.length;
         }
@@ -884,8 +879,6 @@
       if (next >= 0 && next < bookChapters.length) showChapter(next);
     }
 
-    // KỂ TRUYỆN GIỌNG ASMR NHẬT BẢN & ĐỌC NỀN TỰ LẬT CHƯƠNG
-    let currentReadMode = 'normal';
     function toggleReadAloud(mode) {
       if (isReadingAloud && currentReadMode === mode) stopReadAloud();
       else startReadAloud(mode);
@@ -898,79 +891,84 @@
       isReadingAloud = true;
       currentReadMode = mode;
 
-      document.getElementById('ttsPlayBtn').textContent = mode === 'normal' ? '⏹ Dừng' : '🎧 Nghe';document.getElementById('asmrPlayBtn').textContent = mode === 'asmr' ? '⏹ Dừng ASMR' : '🌸 ASMR JP';
-const utter = new SpeechSynthesisUtterance(text);
-if (mode === 'asmr') {
-utter.lang = 'ja-JP';
-utter.rate = 0.85; // Nhịp kể chậm rãi, êm ái chuẩn phong cách ASMR Nhật
-utter.pitch = 1.08; // Tông giọng nhẹ nhàng, thì thầm
-const voices = window.speechSynthesis.getVoices();
-const jpFemale = voices.find(v => v.lang.includes('ja') && (v.name.includes('Nanami') || v.name.includes('Kyoko') || v.name.includes('Haruka') || v.name.includes('Google')));
-if (jpFemale) utter.voice = jpFemale;
-} else {
-utter.lang = (currentLang === 'ja') ? 'ja-JP' : 'vi-VN';
-utter.rate = 1.05;
-}
-utter.onend = () => {
-if (isReadingAloud && currentChapIdx + 1 < bookChapters.length) navChapter(1);
-else stopReadAloud();
-};
-window.speechSynthesis.speak(utter);
-}
-function stopReadAloud() {
-isReadingAloud = false;
-if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-document.getElementById('ttsPlayBtn').textContent = '🎧 Nghe';
-document.getElementById('asmrPlayBtn').textContent = '🌸 ASMR JP';
-}
-function polishStoryStyle(text) {
-return text
-.replace(/\bta này\b/gi, 'tôi').replace(/\bhắn ta\b/gi, 'anh ta')
-.replace(/\bnàng ta\b/gi, 'cô ấy').replace(/\bnhà trẻ\b/gi, 'trường mẫu giáo')
-.replace(/\btiểu bằng hữu\b/gi, 'bạn nhỏ').replace(/\btiểu hài tử\b/gi, 'đứa trẻ')
-.replace(/\bkí sự\b/gi, 'ký ức').replace(/\s+\n/g, '\n').replace(/\n{3,}/g, '\n\n');
-}
-async function translateCurrentChapter() {
-const textEl = document.getElementById('currentChapText');
-const rawText = textEl.textContent.trim();
-if (!rawText) return;
-if (!originalChapterCache) originalChapterCache = rawText;
-const btn = document.getElementById('aiTransBtn');
-btn.disabled = true; btn.textContent = '⏳...';
-try {
-let translated = '';
-const isVietnamese = /[ăâđêôơưàảãáạằẳẵắặầẩẫấậèẻẽéẹềểễếệìỉĩíịòỏõóọồổỗốộờởỡớợùủũúụừửữứựỳỷỹýỵ]/i.test(originalChapterCache);
-if (isVietnamese && currentLang === 'vi') {
-translated = polishStoryStyle(originalChapterCache);
-} else {
-const targetLang = (currentLang === 'ja') ? 'ja' : 'vi';
-const lines = originalChapterCache.split('\n').filter(l => l.trim());
-const outLines = [];
-for (let i = 0; i < Math.min(lines.length, 25); i++) {
-const line = lines.at(i).slice(0, 450);
-const res = await fetch('translated.net' + encodeURIComponent(line) + '&langpair=Autodetect|' + targetLang);
-if (res.ok) {
-const data = await res.json();
-outLines.push(data.responseData?.translatedText || line);
-} else outLines.push(line);
-}
-translated = outLines.join('\n\n');
-}
-if (translated) {
-textEl.textContent = translated.trim();
-document.getElementById('origChapBtn').style.display = 'inline-block';
-}
-} catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = '✨ Dịch mượt'; }
-}
+      document.getElementById('ttsPlayBtn').textContent = mode === 'normal' ? '⏹ Dừng' : '🎧 Nghe';
+      document.getElementById('asmrPlayBtn').textContent = mode === 'asmr' ? '⏹ Dừng ASMR' : '🌸 ASMR JP';
+
+      const utter = new SpeechSynthesisUtterance(text);
+      if (mode === 'asmr') {
+        utter.lang = 'ja-JP';
+        utter.rate = 0.85;
+        utter.pitch = 1.08;
+        const voices = window.speechSynthesis.getVoices();
+        const jpFemale = voices.find(v => v.lang.includes('ja') && (v.name.includes('Nanami') || v.name.includes('Kyoko') || v.name.includes('Haruka') || v.name.includes('Google')));
+        if (jpFemale) utter.voice = jpFemale;
+      } else {
+        utter.lang = (currentLang === 'ja') ? 'ja-JP' : 'vi-VN';
+        utter.rate = 1.05;
+      }
+
+      utter.onend = () => {
+        if (isReadingAloud && currentChapIdx + 1 < bookChapters.length) navChapter(1);
+        else stopReadAloud();
+      };
+      window.speechSynthesis.speak(utter);
+    }
+
+    function stopReadAloud() {
+      isReadingAloud = false;
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      document.getElementById('ttsPlayBtn').textContent = '🎧 Nghe';
+      document.getElementById('asmrPlayBtn').textContent = '🌸 ASMR JP';
+    }
+
+    function polishStoryStyle(text) {
+      return text
+        .replace(/\bta này\b/gi, 'tôi').replace(/\bhắn ta\b/gi, 'anh ta')
+        .replace(/\bnàng ta\b/gi, 'cô ấy').replace(/\bnhà trẻ\b/gi, 'trường mẫu giáo')
+        .replace(/\btiểu bằng hữu\b/gi, 'bạn nhỏ').replace(/\btiểu hài tử\b/gi, 'đứa trẻ')
+        .replace(/\bkí sự\b/gi, 'ký ức').replace(/\s+\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+    }
+
+    async function translateCurrentChapter() {
+      const textEl = document.getElementById('currentChapText');
+      const rawText = textEl.textContent.trim();
+      if (!rawText) return;
+      if (!originalChapterCache) originalChapterCache = rawText;
+
+      const btn = document.getElementById('aiTransBtn');
+      btn.disabled = true; btn.textContent = '⏳...';
+      try {
+        let translated = '';
+        const isVietnamese = /[ăâđêôơưàảãáạằẳẵắặầẩẫấậèẻẽéẹềểễếệìỉĩíịòỏõóọồổỗốộờởỡớợùủũúụừửữứựỳỷỹýỵ]/i.test(originalChapterCache);
+        if (isVietnamese && currentLang === 'vi') {
+          translated = polishStoryStyle(originalChapterCache);
+        } else {
+          const targetLang = (currentLang === 'ja') ? 'ja' : 'vi';
+          const lines = originalChapterCache.split('\n').filter(l => l.trim());
+          const outLines = [];
+          for (let i = 0; i < Math.min(lines.length, 25); i++) {
+            const line = lines.at(i).slice(0, 450);
+            const res = await fetch('https://translated.net' + encodeURIComponent(line) + '&langpair=Autodetect|' + targetLang);
+            if (res.ok) {
+              const data = await res.json();
+              outLines.push(data.responseData?.translatedText || line);
+            } else outLines.push(line);
+          }
+          translated = outLines.join('\n\n');
+        }
+        if (translated) {
+          textEl.textContent = translated.trim();
+          document.getElementById('origChapBtn').style.display = 'inline-block';
+        }
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = '✨ Dịch mượt'; }
+    }
+
     function restoreOriginalChapter() {
-if (originalChapterCache) {
-document.getElementById('currentChapText').textContent = originalChapterCache;
-document.getElementById('origChapBtn').style.display = 'none';
-}
-}
-
-
-html
+      if (originalChapterCache) {
+        document.getElementById('currentChapText').textContent = originalChapterCache;
+        document.getElementById('origChapBtn').style.display = 'none';
+      }
+    }
     let allSongs = [], activePlaylist = 'All', filteredSongs = [], currentSongIdx = -1, isMusicPlaying = false;
 
     function getCleanYtId(rawStr) {
@@ -986,7 +984,7 @@ html
 
     async function loadSongs() {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/songs?select=*&order=id.desc`, { headers: readHeaders });
+        const res = await fetch(SUPABASE_URL + '/rest/v1/songs?select=*&order=id.desc', { headers: readHeaders });
         if (!res.ok) return;
         allSongs = await res.json();
         renderPlaylists(); renderSongs();
@@ -1012,20 +1010,19 @@ html
       filteredSongs.forEach((s, idx) => {
         const div = document.createElement('div'); div.className = 'song-item';
         const isYt = s.audio_url && (s.audio_url.startsWith('YT:') || s.audio_url.includes('youtu'));
-        const finalLink = s.audio_url.startsWith('http') ? s.audio_url : ('https://www.youtube.com/watch?v=' + getCleanYtId(s.audio_url));
-        div.innerHTML = 
-          <div style="display:flex; align-items:center; gap:10px; overflow:hidden; flex:1;">
-            <button class="music-btn" onclick="playSongAt(${idx})">▶</button>
-            <div style="overflow:hidden; flex:1;">
-              <div style="font-weight:600; font-size:0.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${s.title}</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);">${s.playlist_name || 'General'} • ${isYt ? 'YouTube (0MB)' : 'MP3 Cloud'}</div>
-            </div>
-          </div>
-          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
-            <a href="${finalLink}" target="_blank" rel="noopener noreferrer" class="btn-outline" style="text-decoration:none; padding:4px 8px; font-size:0.75rem;">↗ Link</a>
-            <button class="btn-danger" onclick="deleteItem('songs', ${s.id}, loadSongs)">🗑️</button>
-          </div>
-        ;
+        const finalLink = s.audio_url.startsWith('http') ? s.audio_url : ('https://youtube.com' + getCleanYtId(s.audio_url));
+        div.innerHTML =
+          '<div style="display:flex; align-items:center; gap:10px; overflow:hidden; flex:1;">' +
+            '<button class="music-btn" onclick="playSongAt(' + idx + ')">▶</button>' +
+            '<div style="overflow:hidden; flex:1;">' +
+              '<div style="font-weight:600; font-size:0.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + s.title + '</div>' +
+              '<div style="font-size:0.75rem; color:var(--text-muted);">' + (s.playlist_name || 'General') + ' • ' + (isYt ? 'YouTube (0MB)' : 'MP3 Cloud') + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">' +
+            '<a href="' + finalLink + '" target="_blank" rel="noopener noreferrer" class="btn-outline" style="text-decoration:none; padding:4px 8px; font-size:0.75rem;">↗ Link</a>' +
+            '<button class="btn-danger" onclick="deleteItem(\'songs\', ' + s.id + ', loadSongs)">🗑️</button>' +
+          '</div>';
         feed.appendChild(div);
       });
     }
@@ -1039,7 +1036,7 @@ html
       const btn = document.getElementById('songSaveBtn'); btn.disabled = true; btn.textContent = '⏳...';
       try {
         let finalUrl = ytUrl ? ytUrl : await uploadFileToCloud(file);
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/songs`, { method: 'POST', headers: writeHeaders, body: JSON.stringify({ title, playlist_name: playlist, audio_url: finalUrl }) });
+        const res = await fetch(SUPABASE_URL + '/rest/v1/songs', { method: 'POST', headers: writeHeaders, body: JSON.stringify({ title, playlist_name: playlist, audio_url: finalUrl }) });
         if (!res.ok) throw new Error(await res.text());
         ['songTitle','songYtUrl','songFile'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('songFileLabel').textContent = dict[currentLang].songFileLbl;
@@ -1058,7 +1055,7 @@ html
 
       const isYt = song.audio_url && (song.audio_url.startsWith('YT:') || song.audio_url.includes('youtu'));
       if (isYt) {
-        const targetUrl = song.audio_url.startsWith('http') ? song.audio_url : ('https://www.youtube.com/watch?v=' + getCleanYtId(song.audio_url));
+        const targetUrl = song.audio_url.startsWith('http') ? song.audio_url : ('https://youtube.com' + getCleanYtId(song.audio_url));
         window.open(targetUrl, '_blank', 'noopener,noreferrer');
         document.getElementById('miniSongTitle').textContent = '↗ ' + song.title;
         document.getElementById('miniPlayBtn').textContent = '▶';
@@ -1071,11 +1068,11 @@ html
         isMusicPlaying = true;
 
         ytBox.style.cssText = 'position:fixed; bottom:68px; right:12px; left:12px; max-width:340px; margin-left:auto; z-index:999; background:var(--bg-card); border:1.5px solid var(--primary); border-radius:12px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between; gap:10px; box-shadow:0 6px 20px rgba(0,0,0,0.6);';
-        ytBox.innerHTML = 
-          <span style="font-size:0.82rem; font-weight:600; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">🎵 ' + song.title + '</span>' +
-          <div style="display:flex; gap:6px; flex-shrink:0;">' +
-            <button onclick="toggleMiniPlay()" style="background:var(--primary); color:#fff; border:none; border-radius:8px; padding:4px 10px; font-size:0.78rem; font-weight:600; cursor:pointer;">⏯</button>' +
-            <button onclick="closeYtPlayer()" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:4px 10px; font-size:0.78rem; font-weight:700; cursor:pointer;">✕ Tắt</button>' +
+        ytBox.innerHTML =
+          '<span style="font-size:0.82rem; font-weight:600; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">🎵 ' + song.title + '</span>' +
+          '<div style="display:flex; gap:6px; flex-shrink:0;">' +
+            '<button onclick="toggleMiniPlay()" style="background:var(--primary); color:#fff; border:none; border-radius:8px; padding:4px 10px; font-size:0.78rem; font-weight:600; cursor:pointer;">⏯</button>' +
+            '<button onclick="closeYtPlayer()" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:4px 10px; font-size:0.78rem; font-weight:700; cursor:pointer;">✕ Tắt</button>' +
           '</div>';
       }
     }
@@ -1096,9 +1093,10 @@ html
       else { mp3.play(); document.getElementById('miniPlayBtn').textContent = '⏸'; isMusicPlaying = true; }
     }
 
+    function playNextSong() { if (filteredSongs.length > 0) playSongAt(currentSongIdx + 1); }
     let replyPrefix = '';
     function setReply(sender, text) {
-      replyPrefix = `↪ [${sender}: ${text.slice(0, 25)}...] `;
+      replyPrefix = '↪ [' + sender + ': ' + text.slice(0, 25) + '...] ';
       document.getElementById('replyPreviewText').textContent = replyPrefix;
       document.getElementById('replyBanner').style.display = 'flex';
       document.getElementById('chatText').focus();
@@ -1121,7 +1119,7 @@ html
     let lastChatLen = 0;
     async function loadChat() {
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/messages?select=*&order=id.asc`, { headers: readHeaders });
+        const res = await fetch(SUPABASE_URL + '/rest/v1/messages?select=*&order=id.asc', { headers: readHeaders });
         if (!res.ok) return;
         const data = await res.json();
         if (data.length === lastChatLen) return;
@@ -1134,7 +1132,10 @@ html
           div.className = 'chat-msg' + (isMe ? ' me' : '');
           const safeText = (m.text || '').replace(/'/g, "\\'");
           div.onclick = (e) => { if (e.target.tagName !== 'IMG') setReply(m.sender || 'User', safeText || 'Ảnh'); };
-          div.innerHTML = `<div class="chat-sender"><span>${m.sender || 'User'}</span><span>${new Date(m.created_at).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'})}</span></div>${m.text ? `<div>${m.text}</div>` : ''}${m.image_url ? `<img src="${m.image_url}" loading="lazy" onclick="openLightbox('${m.image_url}')">` : ''}`;
+          const timeStr = new Date(m.created_at).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+          div.innerHTML = '<div class="chat-sender"><span>' + (m.sender || 'User') + '</span><span>' + timeStr + '</span></div>' +
+            (m.text ? '<div>' + m.text + '</div>' : '') +
+            (m.image_url ? '<img src="' + m.image_url + '" loading="lazy" onclick="openLightbox(\'' + m.image_url + '\')">' : '');
           box.appendChild(div);
         });
         box.scrollTop = box.scrollHeight;
@@ -1150,7 +1151,7 @@ html
       const btn = document.getElementById('chatSendBtn'); btn.disabled = true;
       try {
         let imgUrl = file ? await uploadFileToCloud(file) : null;
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/messages`, { method: 'POST', headers: writeHeaders, body: JSON.stringify({ sender, text: finalText, image_url: imgUrl }) });
+        const res = await fetch(SUPABASE_URL + '/rest/v1/messages', { method: 'POST', headers: writeHeaders, body: JSON.stringify({ sender, text: finalText, image_url: imgUrl }) });
         if (!res.ok) throw new Error(await res.text());
         textInp.value = ''; imgInp.value = ''; cancelReply(); onChatImgPicked();
         loadChat();
@@ -1159,7 +1160,7 @@ html
 
     async function deleteItem(table, id, reloadFn) {
       if (!confirm('Delete?')) return;
-      await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, { method: 'DELETE', headers: writeHeaders });
+      await fetch(SUPABASE_URL + '/rest/v1/' + table + '?id=eq.' + id, { method: 'DELETE', headers: writeHeaders });
       reloadFn(); checkStorageQuota();
     }
 
@@ -1167,13 +1168,13 @@ html
     function updatePomoUI() {
       const m = String(Math.floor(pomoSeconds / 60)).padStart(2, '0');
       const s = String(pomoSeconds % 60).padStart(2, '0');
-      document.getElementById('pomoDisplay').textContent = `${m}:${s}`;
+      document.getElementById('pomoDisplay').textContent = m + ':' + s;
     }
     function applyCustomPomo() {
       const val = parseInt(document.getElementById('customPomoMins').value, 10);
       if (!val || val <= 0) return alert(currentLang === 'ja' ? '1分以上の数字を入力してください' : 'Hãy nhập số phút lớn hơn 0!');
       setPomoMode(val);
-      document.getElementById('pomoStatus').textContent = currentLang === 'ja' ? `カスタムタイマー (${val}分)` : `Hẹn giờ tùy chỉnh (${val} phút)`;
+      document.getElementById('pomoStatus').textContent = currentLang === 'ja' ? 'カスタムタイマー (' + val + '分)' : 'Hẹn giờ tùy chỉnh (' + val + ' phút)';
     }
     function setPomoMode(mins) {
       clearInterval(pomoTimer); isPomoRunning = false;
@@ -1200,7 +1201,7 @@ html
       todos.forEach((item, i) => {
         const row = document.createElement('div');
         row.style = 'display:flex; justify-content:space-between; align-items:center; background:var(--bg-input); padding:8px 12px; border-radius:10px;';
-        row.innerHTML = `<span onclick="toggleTodo(${i})" style="cursor:pointer; flex:1; text-decoration:${item.done ? 'line-through' : 'none'}; opacity:${item.done ? 0.5 : 1};">${item.done ? '☑️' : '⬜'} ${item.text}</span><button onclick="delTodo(${i})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:700;">✕</button>`;
+        row.innerHTML = '<span onclick="toggleTodo(' + i + ')" style="cursor:pointer; flex:1; text-decoration:' + (item.done ? 'line-through' : 'none') + '; opacity:' + (item.done ? 0.5 : 1) + ';">' + (item.done ? '☑️' : '⬜') + ' ' + item.text + '</span><button onclick="delTodo(' + i + ')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:700;">✕</button>';
         list.appendChild(row);
       });
     }
@@ -1222,9 +1223,9 @@ html
     }
     const dict = {
       vi: {
-        navVault: 'Kho ảnh AI', navLib: 'Tàng thư viện', navMusic: 'Kho nhạc', navChat: 'Phòng chat', navTools: 'Tiện ích',
+        navVault: 'Thư mục cá nhân', navLib: 'Tàng thư viện', navMusic: 'Kho nhạc', navChat: 'Phòng chat', navTools: 'Tiện ích',
         quota: '💾 Kho lưu trữ', bgBtn: '🖼️ Đổi ảnh nền',
-        vaultTitle: '🔒 Kho Ảnh AI', privateArea: 'Khu vực riêng tư', userPh: 'Tên tài khoản...', pinPh: 'Mã PIN bí mật...', unlockBtn: 'Mở kho của tôi',
+        vaultTitle: '🔒 Thư mục cá nhân', privateArea: 'Khu vực riêng tư', userPh: 'Tên tài khoản...', pinPh: 'Mã PIN bí mật...', unlockBtn: 'Mở thư mục',
         searchPh: 'Mô tả ảnh bạn nhớ mang máng (VD: mèo vàng, bầu trời...)', notePh: 'Ghi chú thêm (AI tự động phân tích ảnh)...',
         pickMedia: '📎 Chọn 1 hoặc nhiều ảnh/video', saveAiBtn: 'Lưu & AI quét',
         libTitle: '📚 Tàng thư viện', backBtn: '← Quay lại',
@@ -1238,9 +1239,9 @@ html
         toolsTitle: '⏱️ Tập trung & Ghi chú', todoTitle: '✅ Việc cần làm', noteTitle: '📝 Ghi chú nháp (Tự lưu)'
       },
       ja: {
-        navVault: 'AIフォト庫', navLib: '図書館', navMusic: '音楽庫', navChat: 'チャット', navTools: 'ツール',
+        navVault: '個人フォルダ', navLib: '図書館', navMusic: '音楽庫', navChat: 'チャット', navTools: 'ツール',
         quota: '💾 ストレージ容量', bgBtn: '🖼️ 背景画像を変更',
-        vaultTitle: '🔒 AIフォト保管庫', privateArea: 'プライベートエリア', userPh: 'アカウント名...', pinPh: '暗証番号 (PIN)...', unlockBtn: 'ロック解除',
+        vaultTitle: '🔒 個人フォルダ', privateArea: 'プライベートエリア', userPh: 'アカウント名...', pinPh: '暗証番号 (PIN)...', unlockBtn: 'ロック解除',
         searchPh: '覚えている画像の特徴を入力（例：黄色い猫、空...）', notePh: 'メモを追加（AIが自動で画像を解析します）...',
         pickMedia: '📎 画像・動画を選択（複数可）', saveAiBtn: '保存＆AI解析',
         libTitle: '📚 デジタル図書館', backBtn: '← 戻る',

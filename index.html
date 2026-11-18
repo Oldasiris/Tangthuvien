@@ -712,7 +712,7 @@
     }
     let originalChapterCache = '';
 
-        async function translateCurrentChapter() {
+            async function translateCurrentChapter() {
       const textEl = document.getElementById('currentChapText');
       const rawText = textEl.textContent.trim();
       if (!rawText) return;
@@ -724,12 +724,13 @@
 
       try {
         let translated = '';
-        // Tầng 1: Thử gọi Gemini AI nếu có Key chuẩn AIza
         if (GEMINI_KEY && GEMINI_KEY.startsWith('AIza')) {
           const prompt = (currentLang === 'ja')
             ? "以下の物語を自然な日本語に翻訳・編集してください：\n\n" + originalChapterCache
             : "Biên tập và dịch lại đoạn truyện sau sang tiếng Việt thật mượt mà, tự nhiên, giữ đúng xưng hô nhân vật:\n\n" + originalChapterCache;
-          const res = await fetch('https://googleapis.com' + GEMINI_KEY, {
+          const gemHost = 'https://googleapis.com';
+          const gemPath = '/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_KEY;
+          const res = await fetch(gemHost + gemPath, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
@@ -740,11 +741,11 @@
           }
         }
 
-        // Tầng 2: Tự động dùng cổng dịch thuật miễn phí (Không bao giờ bị lỗi CORS/Fetch)
         if (!translated) {
           const targetLang = (currentLang === 'ja') ? 'ja' : 'vi';
-          const url = 'https://googleapis.com' + targetLang + '&dt=t&q=' + encodeURIComponent(originalChapterCache.slice(0, 4500));
-          const res = await fetch(url);
+          const trHost = 'https://googleapis.com';
+          const trPath = '/translate_a/single?client=gtx&sl=auto&tl=' + targetLang + '&dt=t&q=';
+          const res = await fetch(trHost + trPath + encodeURIComponent(originalChapterCache.slice(0, 4500)));
           if (!res.ok) throw new Error('Không thể kết nối máy chủ dịch');
           const data = await res.json();
           translated = data.at(0).map(item => item.at(0)).join('');

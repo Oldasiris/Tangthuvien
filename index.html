@@ -9,20 +9,20 @@
   <link href="https://googleapis.com" rel="stylesheet">
   <style>
     :root[data-theme="dark"] {
-      --bg-main: #090d16; --bg-sidebar: #0d1320; --bg-card: rgba(17, 24, 39, 0.85);
-      --bg-input: rgba(31, 41, 55, 0.85); --border: #283548; --primary: #3b82f6;
+      --bg-main: #090d16; --bg-sidebar: #0d1320; --bg-card: rgba(17, 24, 39, 0.88);
+      --bg-input: rgba(31, 41, 55, 0.88); --border: #283548; --primary: #3b82f6;
       --accent: #8b5cf6; --text-main: #f8fafc; --text-muted: #94a3b8;
       --bg-image: none; --glass: blur(12px);
     }
     :root[data-theme="light"] {
-      --bg-main: #f1f5f9; --bg-sidebar: rgba(255, 255, 255, 0.9); --bg-card: rgba(255, 255, 255, 0.85);
-      --bg-input: rgba(248, 250, 252, 0.9); --border: #cbd5e1; --primary: #2563eb;
+      --bg-main: #f1f5f9; --bg-sidebar: rgba(255, 255, 255, 0.92); --bg-card: rgba(255, 255, 255, 0.88);
+      --bg-input: rgba(248, 250, 252, 0.92); --border: #cbd5e1; --primary: #2563eb;
       --accent: #7c3aed; --text-main: #0f172a; --text-muted: #64748b;
       --bg-image: none; --glass: blur(12px);
     }
     :root[data-theme="anime"] {
-      --bg-main: #130b24; --bg-sidebar: rgba(20, 14, 38, 0.78);
-      --bg-card: rgba(26, 18, 48, 0.75); --bg-input: rgba(38, 27, 68, 0.8);
+      --bg-main: #130b24; --bg-sidebar: rgba(20, 14, 38, 0.82);
+      --bg-card: rgba(26, 18, 48, 0.78); --bg-input: rgba(38, 27, 68, 0.82);
       --border: rgba(244, 114, 182, 0.35); --primary: #ec4899;
       --accent: #a855f7; --text-main: #fdf2f8; --text-muted: #f9a8d4;
       --bg-image: linear-gradient(rgba(15, 10, 30, 0.6), rgba(15, 10, 30, 0.7)), url('https://unsplash.com');
@@ -30,21 +30,24 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg-main); background-image: var(--bg-image); background-size: cover; background-position: center; background-attachment: fixed; color: var(--text-main); display: flex; height: 100dvh; overflow: hidden; transition: 0.3s; }
-    .sidebar { width: 250px; background: var(--bg-sidebar); backdrop-filter: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 14px 10px; gap: 6px; flex-shrink: 0; transition: width 0.25s; z-index: 20; }
-    .sidebar.collapsed { width: 70px; }
-    .sidebar.collapsed .nav-text, .sidebar.collapsed .brand-text, .sidebar.collapsed #customBgBtn, .sidebar.collapsed .music-title, .sidebar.collapsed .quota-details { display: none !important; }
-    .brand { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px 12px; border-bottom: 1px solid var(--border); margin-bottom: 4px; font-weight: 700; }
-    .toggle-btn { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; }
-    .nav-item { display: flex; align-items: center; gap: 11px; padding: 10px 13px; border-radius: 12px; color: var(--text-muted); background: transparent; border: 1px solid transparent; font-size: 0.88rem; cursor: pointer; white-space: nowrap; overflow: hidden; }
+    .sidebar { width: 245px; background: var(--bg-sidebar); backdrop-filter: var(--glass); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 14px 10px; gap: 6px; flex-shrink: 0; transition: width 0.25s; z-index: 20; }
+    .sidebar.collapsed { width: 68px; align-items: center; }
+    .sidebar.collapsed .nav-text, .sidebar.collapsed .brand-text, .sidebar.collapsed .theme-box, .sidebar.collapsed .music-title, .sidebar.collapsed .quota-box { display: none !important; }
+    .brand { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 4px 8px 12px; border-bottom: 1px solid var(--border); margin-bottom: 4px; font-weight: 700; }
+    .sidebar.collapsed .brand { justify-content: center; padding: 4px 0 12px; }
+    .toggle-btn { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 13px; border-radius: 12px; color: var(--text-muted); background: transparent; border: 1px solid transparent; font-size: 0.88rem; cursor: pointer; white-space: nowrap; overflow: hidden; }
+    .sidebar.collapsed .nav-item { justify-content: center; padding: 12px 0; }
     .nav-item.active { background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(236,72,153,0.18)); color: var(--primary); border-color: var(--border); font-weight: 600; }
-    .quota-box { background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; margin-top: auto; font-size: 0.75rem; }
+    .quota-box { background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; margin-top: auto; font-size: 0.75rem; width: 100%; }
     .quota-bar-bg { width: 100%; height: 6px; background: rgba(128,128,128,0.25); border-radius: 6px; overflow: hidden; margin-top: 5px; }
     .quota-bar-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.4s; }
     .quota-bar-fill.warn { background: #ef4444; }
-    .mini-player { background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .mini-player { background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%; }
+    .sidebar.collapsed .mini-player { flex-direction: column; padding: 6px 4px; background: transparent; border: none; }
     .music-btn { background: var(--primary); color: #fff; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 0.78rem; flex-shrink: 0; }
     .music-title { font-size: 0.78rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
-    .theme-box { padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 5px; }
+    .theme-box { padding-top: 6px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 5px; width: 100%; }
     .theme-btns { display: flex; gap: 5px; }
     .theme-btn { flex: 1; padding: 5px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main); cursor: pointer; font-size: 0.75rem; font-weight: 600; }
     .theme-btn.active { border-color: var(--primary); background: var(--primary); color: #fff; }
@@ -52,55 +55,56 @@
     .main-area { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
     .tab-pane { display: none; flex-direction: column; height: 100%; overflow: hidden; }
     .tab-pane.active { display: flex; }
-    .top-bar { padding: 14px 20px; background: var(--bg-card); backdrop-filter: var(--glass); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-    .scroll-body { flex: 1; overflow-y: auto; padding: 18px 20px; }
-    .box, .book-card, .media-card, .lock-card, .song-item { background: var(--bg-card); backdrop-filter: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 15px; margin-bottom: 14px; }
+    .top-bar { padding: 12px 18px; background: var(--bg-card); backdrop-filter: var(--glass); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .scroll-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+    .box, .book-card, .media-card, .lock-card, .song-item { background: var(--bg-card); backdrop-filter: var(--glass); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
     input[type="text"], input[type="password"], textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 10px 13px; border-radius: 10px; font-size: 0.9rem; margin-bottom: 10px; }
     textarea { resize: vertical; min-height: 75px; }
     .row-actions { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-    .file-btn { background: var(--bg-input); border: 1px dashed var(--border); color: var(--text-muted); padding: 8px 12px; border-radius: 10px; font-size: 0.83rem; cursor: pointer; max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .btn { background: var(--primary); color: #fff; border: none; padding: 8px 16px; border-radius: 10px; font-weight: 600; font-size: 0.86rem; cursor: pointer; }
+    .file-btn { background: var(--bg-input); border: 1px dashed var(--border); color: var(--text-muted); padding: 8px 12px; border-radius: 10px; font-size: 0.83rem; cursor: pointer; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn { background: var(--primary); color: #fff; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; flex-shrink: 0; }
     .btn:disabled { opacity: 0.5; }
-    .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 6px 12px; border-radius: 8px; font-size: 0.82rem; cursor: pointer; font-weight: 600; }
+    .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: 600; }
     .btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); padding: 4px 10px; font-size: 0.75rem; border-radius: 8px; cursor: pointer; }
-    .ai-search-bar { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
+    .ai-search-bar { display: flex; gap: 8px; margin-bottom: 14px; align-items: center; }
     .ai-search-bar input { margin-bottom: 0; border-radius: 22px; padding-left: 16px; }
-    .mic-btn { background: linear-gradient(135deg, #ec4899, #8b5cf6); color: #fff; border: none; width: 42px; height: 42px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 10px rgba(236,72,153,0.4); }
+    .mic-btn { background: linear-gradient(135deg, #ec4899, #8b5cf6); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.05rem; cursor: pointer; flex-shrink: 0; }
     .mic-btn.listening { animation: pulse 1s infinite; background: #ef4444; }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.12); } 100% { transform: scale(1); } }
     .ai-tag-badge { font-size: 0.72rem; color: var(--accent); background: rgba(139,92,246,0.14); padding: 4px 8px; border-radius: 8px; line-height: 1.4; }
     .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 999; align-items: center; justify-content: center; padding: 20px; }
-    .lightbox img { max-width: 95%; max-height: 90dvh; border-radius: 12px; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+    .lightbox img { max-width: 95%; max-height: 90dvh; border-radius: 12px; }
     .lock-screen { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-    .lock-card { max-width: 350px; width: 100%; padding: 26px 20px; }
-    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    .lock-card { max-width: 340px; width: 100%; padding: 24px 18px; }
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
     .media-card { margin-bottom: 0; display: flex; flex-direction: column; gap: 8px; }
-    .media-card img, .media-card video { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; background: #000; cursor: zoom-in; }
-    .tag-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-    .tag-chip { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; }
+    .media-card img, .media-card video { width: 100%; height: 195px; object-fit: cover; border-radius: 10px; background: #000; cursor: zoom-in; }
+    .tag-bar { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tag-chip { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); padding: 5px 11px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; }
     .tag-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
     .book-card { position: relative; }
-    .book-title { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; padding-right: 50px; }
+    .book-title { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; padding-right: 45px; }
     .book-tag { background: rgba(168,85,247,0.18); color: var(--accent); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; margin-right: 5px; display: inline-block; margin-bottom: 6px; }
-    .reader-text { font-size: 1rem; line-height: 1.8; white-space: pre-wrap; padding: 10px 0; }
-    .song-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 15px; margin-bottom: 10px; }
-    .chat-box { flex: 1; overflow-y: auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
-    .chat-msg { max-width: 78%; background: var(--bg-card); backdrop-filter: var(--glass); border: 1px solid var(--border); padding: 9px 13px; border-radius: 15px; align-self: flex-start; }
+    .reader-box.sepia { background: #f4ecd8 !important; color: #3b2f2f !important; border-color: #d6c7a9 !important; }
+    .reader-text { font-size: 16px; line-height: 1.85; white-space: pre-wrap; padding: 10px 0; }
+    .song-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 14px; margin-bottom: 10px; }
+    .chat-box { flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-msg { max-width: 80%; background: var(--bg-card); backdrop-filter: var(--glass); border: 1px solid var(--border); padding: 8px 12px; border-radius: 14px; align-self: flex-start; cursor: pointer; }
     .chat-msg.me { background: var(--primary); color: #fff; border-color: var(--primary); align-self: flex-end; }
-    .chat-sender { font-size: 0.72rem; opacity: 0.8; margin-bottom: 3px; font-weight: 600; }
-    .chat-msg img { max-width: 100%; max-height: 240px; border-radius: 10px; margin-top: 6px; display: block; cursor: zoom-in; }
-    .chat-footer { padding: 10px 14px; background: var(--bg-card); backdrop-filter: var(--glass); border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; }
-    .chat-footer input[type="text"] { margin-bottom: 0; border-radius: 20px; }
+    .chat-sender { font-size: 0.7rem; opacity: 0.8; margin-bottom: 3px; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+    .chat-msg img { max-width: 100%; max-height: 230px; border-radius: 10px; margin-top: 6px; display: block; }
+    .reply-banner { background: var(--bg-input); border-left: 3px solid var(--primary); padding: 6px 12px; font-size: 0.78rem; display: none; justify-content: space-between; align-items: center; }
+    .chat-footer { padding: 8px 10px; background: var(--bg-card); backdrop-filter: var(--glass); border-top: 1px solid var(--border); display: flex; gap: 6px; align-items: center; }
+    .chat-footer input[type="text"] { margin-bottom: 0; border-radius: 20px; flex: 1; min-width: 0; }
+    .chat-icon-btn { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 1.05rem; }
+    .chat-icon-btn.has-file { border-color: #22c55e; background: rgba(34,197,94,0.2); }
     @media (max-width: 768px) {
       body { flex-direction: column; }
-      .sidebar { width: 100% !important; height: 64px; flex-direction: row; padding: 4px 6px; border-right: none; border-top: 1px solid var(--border); order: 2; align-items: center; justify-content: space-between; }
-      .brand, .music-title, .quota-box { display: none !important; }
-      .nav-item { flex: 1; flex-direction: column; gap: 2px; padding: 4px 2px; font-size: 0.68rem; justify-content: center; }
+      .sidebar { width: 100% !important; height: 60px; flex-direction: row !important; padding: 4px; border-right: none; border-top: 1px solid var(--border); order: 2; align-items: center; justify-content: space-around; }
+      .brand, .music-title, .quota-box, .theme-box, .mini-player { display: none !important; }
+      .nav-item { flex: 1; flex-direction: column; gap: 2px; padding: 4px 2px !important; font-size: 0.65rem; justify-content: center !important; }
       .nav-text { display: inline !important; }
-      .mini-player { padding: 4px; border: none; background: transparent; }
-      .theme-box { padding-top: 0; border-top: none; border-left: 1px solid var(--border); padding-left: 4px; }
-      .bg-change-btn { padding: 3px 5px; font-size: 0.68rem; }
-      .main-area { order: 1; height: calc(100dvh - 64px); }
+      .main-area { order: 1; height: calc(100dvh - 60px); }
       .scroll-body { padding: 12px; }
     }
   </style>
@@ -119,8 +123,9 @@
     <button class="nav-item" onclick="openTab('library', this)"><span>📚</span><span class="nav-text">Tàng thư viện</span></button>
     <button class="nav-item" onclick="openTab('music', this)"><span>🎵</span><span class="nav-text">Kho nhạc</span></button>
     <button class="nav-item" onclick="openTab('chat', this)"><span>💬</span><span class="nav-text">Phòng chat</span></button>
+    <button class="nav-item" onclick="openTab('tools', this)"><span>⏱️</span><span class="nav-text">Tiện ích</span></button>
 
-    <div class="quota-box" title="Dung lượng lưu trữ miễn phí (Tối đa 1GB)">
+    <div class="quota-box">
       <div class="quota-details" style="display:flex; justify-content:space-between;">
         <span>💾 Kho lưu trữ</span>
         <span id="quotaText">0 / 1024 MB</span>
@@ -131,7 +136,7 @@
     <div class="mini-player">
       <button class="music-btn" id="miniPlayBtn" onclick="toggleMiniPlay()">▶</button>
       <span class="music-title" id="miniSongTitle">Chưa chọn nhạc</span>
-      <button class="toggle-btn" style="width:26px; height:26px; font-size:0.75rem;" onclick="playNextSong()" title="Bài tiếp">⏭</button>
+      <button class="toggle-btn" style="width:26px; height:26px; font-size:0.75rem;" onclick="playNextSong()">⏭</button>
     </div>
     <div id="ytHiddenBox" style="width:0; height:0; overflow:hidden;"></div>
     <audio id="mp3Player" onended="playNextSong()"></audio>
@@ -153,10 +158,12 @@
   <main class="main-area">
     <section id="tab-vault" class="tab-pane active">
       <div class="top-bar">
-        <h2 id="vaultHeaderTitle">🔒 Kho Ảnh AI & Tư liệu riêng</h2>
-        <div style="display:flex; gap:6px;">
-          <button class="btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="setGeminiKey()" title="Cập nhật mã Gemini AI">⚙️ AI Key</button>
-          <button class="btn-danger" id="lockBtn" style="display:none;" onclick="lockVault()">Khóa kho</button>
+        <h2 id="vaultHeaderTitle" style="font-size:1rem;">🔒 Kho Ảnh AI</h2>
+        <div style="display:flex; gap:5px; align-items:center;">
+          <button class="btn-outline" style="padding:4px 7px; font-size:0.72rem;" onclick="cycleThemeMobile()">🎨</button>
+          <button class="btn-outline" style="padding:4px 7px; font-size:0.72rem;" onclick="toggleLangMobile()">🇻🇳/🇯🇵</button>
+          <button class="btn-outline" style="padding:4px 7px; font-size:0.72rem;" onclick="setGeminiKey()">🔑</button>
+          <button class="btn-danger" id="lockBtn" style="display:none;" onclick="lockVault()">🔒</button>
         </div>
       </div>
       <div id="vaultLockScreen" class="lock-screen">
@@ -170,17 +177,16 @@
       </div>
       <div id="vaultContent" class="scroll-body" style="display:none;">
         <div class="ai-search-bar">
-          <input type="text" id="aiSearchInput" placeholder="Mô tả ảnh bạn nhớ mang máng (VD: mèo vàng, bầu trời, code...)" oninput="filterVaultByAI()">
-          <button class="mic-btn" id="voiceMicBtn" onclick="startVoiceSearch()" title="Nói để tìm ảnh bằng giọng nói">🎙️</button>
+          <input type="text" id="aiSearchInput" placeholder="Mô tả ảnh nhớ mang máng..." oninput="filterVaultByAI()">
+          <button class="mic-btn" id="voiceMicBtn" onclick="startVoiceSearch()">🎙️</button>
         </div>
         <div id="aiVoiceStatus" style="font-size:0.8rem; color:var(--primary); margin-bottom:12px; display:none;"></div>
-
         <div class="box">
-          <input type="text" id="vaultNote" placeholder="Ghi chú thêm (AI sẽ tự động phân tích & gắn nhãn ảnh cho bạn)...">
+          <input type="text" id="vaultNote" placeholder="Ghi chú thêm (AI tự động phân tích ảnh)...">
           <div class="row-actions">
             <label for="vaultFile" class="file-btn" id="vaultFileLabel">📎 Chọn 1 hoặc nhiều ảnh/video</label>
             <input type="file" id="vaultFile" accept="image/*,video/*" multiple onchange="showMultiNames()">
-            <button class="btn" id="vaultSaveBtn" onclick="uploadVault()">Lưu & Phân tích AI</button>
+            <button class="btn" id="vaultSaveBtn" onclick="uploadVault()">Lưu & AI quét</button>
           </div>
         </div>
         <div class="media-grid" id="vaultFeed"></div>
@@ -188,19 +194,19 @@
     </section>
     <section id="tab-library" class="tab-pane">
       <div class="top-bar">
-        <h2 id="libHeaderTitle">📚 Tàng thư viện</h2>
-        <button class="btn-outline" id="backToBooksBtn" style="display:none;" onclick="closeReader()">← Danh sách truyện</button>
+        <h2 id="libHeaderTitle" style="font-size:1rem;">📚 Tàng thư viện</h2>
+        <button class="btn-outline" id="backToBooksBtn" style="display:none;" onclick="closeReader()">← Danh sách</button>
       </div>
       <div id="libraryListView" class="scroll-body">
         <div class="box">
           <input type="text" id="bookTitle" placeholder="Tên bộ truyện...">
-          <input type="text" id="bookTags" placeholder="Tag thể loại (VD: Tiên hiệp, Hành động, Anime)">
+          <input type="text" id="bookTags" placeholder="Tag thể loại (VD: Tiên hiệp, Anime)">
           <textarea id="bookSummary" placeholder="Tóm tắt cơ bản..."></textarea>
           <textarea id="bookReview" placeholder="Review & Đánh giá..."></textarea>
           <div class="row-actions">
-            <label for="bookFile" class="file-btn" id="bookFileLabel">🖼️ Ảnh bìa / File đính kèm</label>
-            <input type="file" id="bookFile" onchange="showName('bookFile','bookFileLabel','🖼️ Ảnh bìa / File đính kèm')">
-            <button class="btn" id="bookSaveBtn" onclick="addBook()">Tạo bộ truyện</button>
+            <label for="bookFile" class="file-btn" id="bookFileLabel">🖼️ Ảnh bìa / File</label>
+            <input type="file" id="bookFile" onchange="showName('bookFile','bookFileLabel','🖼️ Ảnh bìa / File')">
+            <button class="btn" id="bookSaveBtn" onclick="addBook()">Tạo truyện</button>
           </div>
         </div>
         <div class="tag-bar" id="tagFilterBar"></div>
@@ -208,45 +214,49 @@
       </div>
       <div id="chapterReaderView" class="scroll-body" style="display:none;">
         <div class="box">
-          <h4 style="margin-bottom:10px; color:var(--primary);">➕ Thêm chương / trang mới</h4>
+          <h4 style="margin-bottom:8px; color:var(--primary);">➕ Thêm chương / trang mới</h4>
           <input type="text" id="chapTitle" placeholder="Tên chương (VD: Chương 1)">
-          <textarea id="chapContent" placeholder="Dán nội dung chữ (hoặc để trống nếu đăng trang ảnh)..."></textarea>
+          <textarea id="chapContent" placeholder="Dán nội dung chữ (hoặc chọn trang ảnh)..."></textarea>
           <div class="row-actions">
-            <label for="chapImg" class="file-btn" id="chapImgLabel">🖼️ Hoặc chọn trang ảnh truyện</label>
-            <input type="file" id="chapImg" accept="image/*" onchange="showName('chapImg','chapImgLabel','🖼️ Hoặc chọn trang ảnh truyện')">
+            <label for="chapImg" class="file-btn" id="chapImgLabel">🖼️ Chọn trang ảnh</label>
+            <input type="file" id="chapImg" accept="image/*" onchange="showName('chapImg','chapImgLabel','🖼️ Chọn trang ảnh')">
             <button class="btn" id="chapSaveBtn" onclick="addChapter()">Đăng chương</button>
           </div>
         </div>
         <div id="chapterListBar" class="tag-bar"></div>
-        <div class="box" id="chapterDisplayBox" style="display:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:12px;">
-            <h3 id="currentChapHeading" style="color:var(--primary);"></h3>
-            <button class="btn-danger" id="delChapBtn">Xóa chương</button>
+        <div class="box reader-box" id="chapterDisplayBox" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:10px;">
+            <h3 id="currentChapHeading" style="color:var(--primary); font-size:1rem;"></h3>
+            <div style="display:flex; gap:5px;">
+              <button class="btn-outline" onclick="changeFontSize(-2)">A-</button>
+              <button class="btn-outline" onclick="changeFontSize(2)">A+</button>
+              <button class="btn-outline" onclick="toggleSepia()">📜</button>
+              <button class="btn-danger" id="delChapBtn">🗑️</button>
+            </div>
           </div>
           <div id="currentChapMedia"></div>
           <div id="currentChapText" class="reader-text"></div>
-          <div style="display:flex; justify-content:space-between; margin-top:20px; padding-top:12px; border-top:1px solid var(--border);">
-            <button class="btn-outline" onclick="navChapter(-1)">← Chương trước</button>
-            <button class="btn-outline" onclick="navChapter(1)">Chương sau →</button>
+          <div style="display:flex; justify-content:space-between; margin-top:18px; padding-top:10px; border-top:1px solid var(--border);">
+            <button class="btn-outline" onclick="navChapter(-1)">← Trước</button>
+            <button class="btn-outline" onclick="navChapter(1)">Sau →</button>
           </div>
         </div>
       </div>
     </section>
-
     <section id="tab-music" class="tab-pane">
       <div class="top-bar">
-        <h2>🎵 Kho nhạc & Playlist</h2>
+        <h2 style="font-size:1rem;">🎵 Kho nhạc</h2>
         <span id="mobileQuotaBadge" style="font-size:0.75rem; color:var(--text-muted);"></span>
       </div>
       <div class="scroll-body">
         <div class="box">
           <input type="text" id="songTitle" placeholder="Tên bài hát...">
-          <input type="text" id="songPlaylist" placeholder="Tên Playlist (VD: Anime Chill, Nhạc đọc truyện, Remix)">
-          <input type="text" id="songYtUrl" placeholder="Dán link YouTube (Tốn 0MB dung lượng)...">
+          <input type="text" id="songPlaylist" placeholder="Tên Playlist (VD: Anime Chill, Remix)">
+          <input type="text" id="songYtUrl" placeholder="Dán link YouTube (Tốn 0MB)...">
           <div class="row-actions">
-            <label for="songFile" class="file-btn" id="songFileLabel">🎧 Hoặc tải file MP3 lên kho</label>
-            <input type="file" id="songFile" accept="audio/*" onchange="showName('songFile','songFileLabel','🎧 Hoặc tải file MP3 lên kho')">
-            <button class="btn" id="songSaveBtn" onclick="addSong()">Thêm bài hát</button>
+            <label for="songFile" class="file-btn" id="songFileLabel">🎧 Hoặc file MP3</label>
+            <input type="file" id="songFile" accept="audio/*" onchange="showName('songFile','songFileLabel','🎧 Hoặc file MP3')">
+            <button class="btn" id="songSaveBtn" onclick="addSong()">Thêm nhạc</button>
           </div>
         </div>
         <div class="tag-bar" id="playlistFilterBar"></div>
@@ -256,15 +266,49 @@
 
     <section id="tab-chat" class="tab-pane">
       <div class="top-bar">
-        <h2>💬 Phòng chat</h2>
-        <input type="text" id="chatSender" placeholder="Tên của bạn..." onchange="saveChatName()" style="width:130px; margin:0; padding:6px 10px; font-size:0.82rem;">
+        <h2 style="font-size:1rem;">💬 Phòng chat</h2>
+        <input type="text" id="chatSender" placeholder="Tên bạn..." onchange="saveChatName()" style="width:115px; margin:0; padding:5px 9px; font-size:0.8rem;">
       </div>
       <div class="chat-box" id="chatBox"></div>
+      <div class="reply-banner" id="replyBanner">
+        <span id="replyPreviewText" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></span>
+        <button onclick="cancelReply()" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:700; padding-left:8px;">✕</button>
+      </div>
       <div class="chat-footer">
-        <label for="chatImg" class="file-btn" id="chatImgLabel" style="padding:8px 12px;">🖼️</label>
-        <input type="file" id="chatImg" accept="image/*" onchange="showName('chatImg','chatImgLabel','🖼️')">
+        <label for="chatImg" class="chat-icon-btn" id="chatImgBtn" title="Gửi ảnh">🖼️</label>
+        <input type="file" id="chatImg" accept="image/*" style="display:none;" onchange="onChatImgPicked()">
         <input type="text" id="chatText" placeholder="Nhắn tin..." onkeypress="if(event.key==='Enter') sendChat()">
         <button class="btn" id="chatSendBtn" onclick="sendChat()">Gửi</button>
+      </div>
+    </section>
+
+    <section id="tab-tools" class="tab-pane">
+      <div class="top-bar"><h2 id="toolsHeaderTitle" style="font-size:1rem;">⏱️ Tập trung & Ghi chú</h2></div>
+      <div class="scroll-body">
+        <div class="box" style="text-align:center;">
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:6px;" id="pomoStatus">Sẵn sàng tập trung</div>
+          <div id="pomoDisplay" style="font-size:3rem; font-weight:700; color:var(--primary); letter-spacing:2px; margin:8px 0;">25:00</div>
+          <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+            <button class="btn" id="pomoStartBtn" onclick="togglePomo()">▶ Bắt đầu</button>
+            <button class="btn-outline" onclick="setPomoMode(25)">25m Học/Làm</button>
+            <button class="btn-outline" onclick="setPomoMode(5)">5m Nghỉ</button>
+          </div>
+        </div>
+        <div class="box">
+          <h4 style="margin-bottom:10px; color:var(--primary);" id="todoTitle">✅ Việc cần làm</h4>
+          <div style="display:flex; gap:8px; margin-bottom:10px;">
+            <input type="text" id="todoInput" placeholder="Thêm việc mới..." style="margin-bottom:0;" onkeypress="if(event.key==='Enter') addTodo()">
+            <button class="btn" onclick="addTodo()">+</button>
+          </div>
+          <div id="todoList" style="display:flex; flex-direction:column; gap:6px;"></div>
+        </div>
+        <div class="box">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h4 style="color:var(--primary);" id="noteTitle">📝 Ghi chú nháp (Tự lưu)</h4>
+            <span id="noteSavedBadge" style="font-size:0.72rem; color:#22c55e;"></span>
+          </div>
+          <textarea id="quickNoteArea" style="min-height:140px; margin-bottom:0;" placeholder="Gõ ghi chú, từ vựng tiếng Nhật hoặc ý tưởng vào đây..." oninput="saveQuickNote()"></textarea>
+        </div>
       </div>
     </section>
   </main>
@@ -283,7 +327,7 @@
       if (k !== null && k.trim()) {
         GEMINI_KEY = k.trim();
         localStorage.setItem('myspace_gemini_key', GEMINI_KEY);
-        alert(currentLang === 'ja' ? 'APIキーを保存しました！' : 'Đã lưu mã AI Key!');
+        alert(currentLang === 'ja' ? '保存しました！' : 'Đã lưu mã AI Key!');
       }
     }
 
@@ -303,29 +347,25 @@
 
     async function analyzeImageWithAI(file) {
       if (!file || !file.type.startsWith('image/')) return currentLang === 'ja' ? '動画 / メディア' : 'Video / Tệp đa phương tiện';
+      if (!GEMINI_KEY) return file.name;
       try {
         const base64Data = await fileToBase64(file);
         const promptText = currentLang === 'ja'
-          ? "この画像を日本語で簡潔に説明してください（背景、主な物体、色、人物、雰囲気、文字などを含め、後で検索しやすいようにカンマ区切りのキーワード形式で出力してください）。"
-          : "Hãy mô tả ngắn gọn bức ảnh này bằng tiếng Việt (gồm: bối cảnh, đồ vật chính, màu sắc, nhân vật, cảm xúc và chữ viết nếu có) dưới dạng các từ khóa tự nhiên cách nhau dấu phẩy để dễ tìm kiếm lại sau này.";
+          ? "この画像を日本語で簡潔に説明してください（背景、物体、色、文字などをカンマ区切りで出力）。"
+          : "Mô tả ngắn gọn bức ảnh này bằng tiếng Việt (bối cảnh, đồ vật, màu sắc, chữ viết nếu có) dưới dạng từ khóa cách nhau dấu phẩy.";
 
         const res = await fetch(`https://googleapis.com{encodeURIComponent(GEMINI_KEY)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }, { inline_data: { mime_type: file.type, data: base64Data } }] }]
-          })
+          body: JSON.stringify({ contents: [{ parts: [{ text: promptText }, { inline_data: { mime_type: file.type, data: base64Data } }] }] })
         });
         if (!res.ok) return file.name;
         const data = await res.json();
         const cand = data.candidates ? data.candidates.at(0) : null;
         const part = cand && cand.content && cand.content.parts ? cand.content.parts.at(0) : null;
         return (part && part.text) ? part.text.trim() : file.name;
-      } catch (e) {
-        return file.name;
-      }
+      } catch (e) { return file.name; }
     }
-
     function speakText(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -338,7 +378,7 @@
 
     function startVoiceSearch() {
       const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRec) return alert(currentLang === 'ja' ? 'Chromeブラウザをご利用ください。' : 'Hãy dùng trình duyệt Chrome để sử dụng Micro giọng nói nhé!');
+      if (!SpeechRec) return alert(currentLang === 'ja' ? 'Chromeをご利用ください。' : 'Hãy dùng Chrome để dùng Micro nhé!');
       const rec = new SpeechRec();
       rec.lang = (currentLang === 'ja') ? 'ja-JP' : 'vi-VN';
       const btn = document.getElementById('voiceMicBtn');
@@ -346,9 +386,7 @@
 
       btn.classList.add('listening');
       status.style.display = 'block';
-      status.textContent = (currentLang === 'ja')
-        ? '🎙️ 聞いています... 探したい写真の特徴を話してください'
-        : '🎙️ Đang nghe... Hãy nói mô tả ảnh bạn cần tìm';
+      status.textContent = (currentLang === 'ja') ? '🎙️ 聞いています...' : '🎙️ Đang nghe mô tả ảnh...';
 
       rec.onresult = (event) => {
         const spoken = event.results.item(0).item(0).transcript;
@@ -360,19 +398,16 @@
         document.getElementById('aiSearchInput').value = isAll ? '' : cleanQuery;
         const count = filterVaultByAI();
 
-        const reply = (currentLang === 'ja')
-          ? `「${cleanQuery}」に一致する写真が${count}件見つかりました`
-          : `Đã tìm thấy ${count} kết quả cho từ khóa ${cleanQuery}`;
+        const reply = (currentLang === 'ja') ? `「${cleanQuery}」に一致する写真が${count}件見つかりました` : `Tìm thấy ${count} kết quả cho ${cleanQuery}`;
         status.textContent = `🤖 AI: "${reply}" (${spoken})`;
         speakText(reply);
       };
 
-      rec.onerror = () => {
-        status.textContent = (currentLang === 'ja') ? '⚠️ 音声を認識できませんでした。もう一度お試しください。' : '⚠️ Không nghe rõ giọng nói, bạn thử bấm Micro nói lại nhé.';
-      };
+      rec.onerror = () => { status.textContent = '⚠️ Thử lại nhé!'; };
       rec.onend = () => btn.classList.remove('listening');
       rec.start();
     }
+
     async function checkStorageQuota() {
       try {
         const res = await fetch(`${SUPABASE_URL}/storage/v1/object/list/media`, {
@@ -391,7 +426,6 @@
         if (percent >= 80) fill.classList.add('warn');
       } catch (e) {}
     }
-
     function applyCustomBg() {
       const url = localStorage.getItem('myspace_anime_bg');
       const theme = document.documentElement.getAttribute('data-theme');
@@ -402,7 +436,7 @@
     }
 
     function changeAnimeBg() {
-      const msg = currentLang === 'ja' ? '背景画像のURLを貼り付けてください（空欄で初期設定に戻す）：' : 'Dán link ảnh nền (để trống để về mặc định):';
+      const msg = currentLang === 'ja' ? '背景画像のURL（空欄で初期設定に戻す）：' : 'Dán link ảnh nền (để trống để về mặc định):';
       const newUrl = prompt(msg, localStorage.getItem('myspace_anime_bg') || '');
       if (newUrl === null) return;
       if (newUrl.trim()) localStorage.setItem('myspace_anime_bg', newUrl.trim());
@@ -417,6 +451,14 @@
       if (document.getElementById('th-' + t)) document.getElementById('th-' + t).classList.add('active');
       applyCustomBg();
     }
+
+    function cycleThemeMobile() {
+      const order = ['dark', 'light', 'anime'];
+      const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+      setTheme(order.at((order.indexOf(cur) + 1) % order.length));
+    }
+
+    function toggleLangMobile() { setLang(currentLang === 'vi' ? 'ja' : 'vi'); }
 
     function toggleMenu() {
       const sb = document.getElementById('sidebar');
@@ -459,7 +501,6 @@
       checkStorageQuota();
       return `${SUPABASE_URL}/storage/v1/object/public/media/${safeName}`;
     }
-
     let currentOwnerKey = '', allVaultItems = [];
     document.getElementById('vaultUser').value = localStorage.getItem('myspace_username') || '';
 
@@ -489,10 +530,12 @@
 
     async function loadVault() {
       if (!currentOwnerKey) return;
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?owner=eq.${encodeURIComponent(currentOwnerKey)}&select=*&order=id.desc`, { headers: readHeaders });
-      if (!res.ok) return;
-      allVaultItems = await res.json();
-      filterVaultByAI();
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?owner=eq.${encodeURIComponent(currentOwnerKey)}&select=*&order=id.desc`, { headers: readHeaders });
+        if (!res.ok) return;
+        allVaultItems = await res.json();
+        filterVaultByAI();
+      } catch (e) {}
     }
 
     function filterVaultByAI() {
@@ -539,15 +582,24 @@
         document.getElementById('vaultNote').value = ''; document.getElementById('vaultFile').value = '';
         showMultiNames();
         loadVault();
-      } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].saveAiBtn; }
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].saveAiBtn; }
     }
-    let allBooks = [], activeTag = 'All', currentBookId = null, bookChapters = [], currentChapIdx = 0;
+    let allBooks = [], activeTag = 'All', currentBookId = null, bookChapters = [], currentChapIdx = 0, readerFontSize = 16;
+
+    function changeFontSize(delta) {
+      readerFontSize = Math.max(12, Math.min(28, readerFontSize + delta));
+      document.getElementById('currentChapText').style.fontSize = readerFontSize + 'px';
+    }
+
+    function toggleSepia() { document.getElementById('chapterDisplayBox').classList.toggle('sepia'); }
 
     async function loadLibrary() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/library?select=*&order=id.desc`, { headers: readHeaders });
-      if (!res.ok) return;
-      allBooks = await res.json();
-      renderTags(); renderBooks();
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/library?select=*&order=id.desc`, { headers: readHeaders });
+        if (!res.ok) return;
+        allBooks = await res.json();
+        renderTags(); renderBooks();
+      } catch (e) {}
     }
 
     function renderTags() {
@@ -568,9 +620,11 @@
       const filtered = activeTag === 'All' ? allBooks : allBooks.filter(b => b.tags && b.tags.toLowerCase().includes(activeTag.toLowerCase()));
       filtered.forEach(b => {
         const tagsHTML = (b.tags || '').split(',').filter(t => t.trim()).map(t => `<span class="book-tag">#${t.trim()}</span>`).join('');
+        const savedChap = localStorage.getItem('read_prog_' + b.id);
+        const progBadge = savedChap !== null ? `<span style="font-size:0.75rem; color:#22c55e;">📌 #${Number(savedChap) + 1}</span>` : '';
         const div = document.createElement('div'); div.className = 'book-card';
         const readBtnText = currentLang === 'ja' ? '📖 読む・話の追加' : '📖 Đọc & Thêm chương';
-        div.innerHTML = `<button class="btn-danger" style="position:absolute; top:14px; right:14px;" onclick="deleteItem('library', ${b.id}, loadLibrary)">🗑️</button><div class="book-title">${b.title}</div><div>${tagsHTML}</div>${b.summary ? `<p style="font-size:0.88rem; margin:6px 0;">${b.summary}</p>` : ''}${b.review ? `<p style="font-size:0.88rem; margin:6px 0; color:var(--text-muted);">${b.review}</p>` : ''}<div style="margin-top:12px; display:flex; gap:10px; align-items:center;"><button class="btn" onclick="openReader(${b.id}, '${b.title.replace(/'/g, "\\'")}')">${readBtnText}</button>${b.file_url ? `<a href="${b.file_url}" target="_blank" style="color:var(--primary); font-size:0.83rem;">📎 File</a>` : ''}</div>`;
+        div.innerHTML = `<button class="btn-danger" style="position:absolute; top:14px; right:14px;" onclick="deleteItem('library', ${b.id}, loadLibrary)">🗑️</button><div class="book-title">${b.title}</div><div>${tagsHTML} ${progBadge}</div>${b.summary ? `<p style="font-size:0.88rem; margin:6px 0;">${b.summary}</p>` : ''}${b.review ? `<p style="font-size:0.88rem; margin:6px 0; color:var(--text-muted);">${b.review}</p>` : ''}<div style="margin-top:12px; display:flex; gap:10px; align-items:center;"><button class="btn" onclick="openReader(${b.id}, '${b.title.replace(/'/g, "\\'")}')">${readBtnText}</button>${b.file_url ? `<a href="${b.file_url}" target="_blank" style="color:var(--primary); font-size:0.83rem;">📎 File</a>` : ''}</div>`;
         feed.appendChild(div);
       });
     }
@@ -590,11 +644,12 @@
         ['bookTitle','bookTags','bookSummary','bookReview','bookFile'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('bookFileLabel').textContent = dict[currentLang].bookFileLbl;
         loadLibrary();
-      } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].bookSaveBtn; }
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].bookSaveBtn; }
     }
 
     async function openReader(bookId, title) {
       currentBookId = bookId;
+      currentChapIdx = Number(localStorage.getItem('read_prog_' + bookId) || 0);
       document.getElementById('libHeaderTitle').textContent = '📖 ' + title;
       document.getElementById('backToBooksBtn').style.display = 'inline-block';
       document.getElementById('libraryListView').style.display = 'none';
@@ -608,6 +663,7 @@
       document.getElementById('backToBooksBtn').style.display = 'none';
       document.getElementById('libraryListView').style.display = 'block';
       document.getElementById('chapterReaderView').style.display = 'none';
+      renderBooks();
     }
 
     async function loadChapters() {
@@ -628,7 +684,8 @@
 
     function showChapter(idx) {
       currentChapIdx = idx;
-      const chap = bookChapters[idx];
+      if (currentBookId) localStorage.setItem('read_prog_' + currentBookId, idx);
+      const chap = bookChapters.at(idx);
       document.getElementById('chapterDisplayBox').style.display = 'block';
       document.getElementById('currentChapHeading').textContent = chap.chapter_title || ('#' + (idx + 1));
       const isImg = chap.content && chap.content.startsWith('IMG_URL:');
@@ -657,7 +714,7 @@
         document.getElementById('chapImgLabel').textContent = dict[currentLang].chapImgLbl;
         currentChapIdx = bookChapters.length;
         loadChapters();
-      } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].chapSaveBtn; }
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].chapSaveBtn; }
     }
     let allSongs = [], activePlaylist = 'All', filteredSongs = [], currentSongIdx = -1, isMusicPlaying = false;
 
@@ -673,10 +730,12 @@
     }
 
     async function loadSongs() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/songs?select=*&order=id.desc`, { headers: readHeaders });
-      if (!res.ok) return;
-      allSongs = await res.json();
-      renderPlaylists(); renderSongs();
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/songs?select=*&order=id.desc`, { headers: readHeaders });
+        if (!res.ok) return;
+        allSongs = await res.json();
+        renderPlaylists(); renderSongs();
+      } catch (e) {}
     }
 
     function renderPlaylists() {
@@ -730,13 +789,13 @@
         ['songTitle','songYtUrl','songFile'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('songFileLabel').textContent = dict[currentLang].songFileLbl;
         loadSongs();
-      } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].songSaveBtn; }
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].songSaveBtn; }
     }
 
     function playSongAt(idx) {
       if (filteredSongs.length === 0) return;
       currentSongIdx = (idx + filteredSongs.length) % filteredSongs.length;
-      const song = filteredSongs[currentSongIdx];
+      const song = filteredSongs.at(currentSongIdx);
       const mp3 = document.getElementById('mp3Player');
       const ytBox = document.getElementById('ytHiddenBox');
 
@@ -763,7 +822,7 @@
     function toggleMiniPlay() {
       if (currentSongIdx === -1 && filteredSongs.length > 0) return playSongAt(0);
       if (currentSongIdx === -1) return;
-      const song = filteredSongs[currentSongIdx];
+      const song = filteredSongs.at(currentSongIdx);
       const mp3 = document.getElementById('mp3Player');
       const ytBox = document.getElementById('ytHiddenBox');
 
@@ -774,12 +833,24 @@
         } else mp3.pause();
         document.getElementById('miniPlayBtn').textContent = '▶';
         isMusicPlaying = false;
-      } else {
-        playSongAt(currentSongIdx);
-      }
+      } else playSongAt(currentSongIdx);
     }
 
     function playNextSong() { if (filteredSongs.length > 0) playSongAt(currentSongIdx + 1); }
+    let replyPrefix = '';
+    function setReply(sender, text) {
+      replyPrefix = `↪ [${sender}: ${text.slice(0, 25)}...] `;
+      document.getElementById('replyPreviewText').textContent = replyPrefix;
+      document.getElementById('replyBanner').style.display = 'flex';
+      document.getElementById('chatText').focus();
+    }
+    function cancelReply() { replyPrefix = ''; document.getElementById('replyBanner').style.display = 'none'; }
+    function onChatImgPicked() {
+      const f = document.getElementById('chatImg').files.item(0);
+      const btn = document.getElementById('chatImgBtn');
+      btn.textContent = f ? '✅' : '🖼️';
+      btn.classList.toggle('has-file', !!f);
+    }
 
     document.getElementById('chatSender').value = localStorage.getItem('myspace_username') || '';
     function saveChatName() {
@@ -790,36 +861,41 @@
 
     let lastChatLen = 0;
     async function loadChat() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/messages?select=*&order=id.asc`, { headers: readHeaders });
-      if (!res.ok) return;
-      const data = await res.json();
-      if (data.length === lastChatLen) return;
-      lastChatLen = data.length;
-      const myName = document.getElementById('chatSender').value.trim() || 'Guest';
-      const box = document.getElementById('chatBox'); box.innerHTML = '';
-      data.forEach(m => {
-        const isMe = m.sender && m.sender === myName;
-        const div = document.createElement('div');
-        div.className = 'chat-msg' + (isMe ? ' me' : '');
-        div.innerHTML = `<div class="chat-sender">${m.sender || 'User'} • ${new Date(m.created_at).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'})}</div>${m.text ? `<div>${m.text}</div>` : ''}${m.image_url ? `<img src="${m.image_url}" loading="lazy" onclick="openLightbox('${m.image_url}')">` : ''}`;
-        box.appendChild(div);
-      });
-      box.scrollTop = box.scrollHeight;
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/messages?select=*&order=id.asc`, { headers: readHeaders });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.length === lastChatLen) return;
+        lastChatLen = data.length;
+        const myName = document.getElementById('chatSender').value.trim() || 'Guest';
+        const box = document.getElementById('chatBox'); box.innerHTML = '';
+        data.forEach(m => {
+          const isMe = m.sender && m.sender === myName;
+          const div = document.createElement('div');
+          div.className = 'chat-msg' + (isMe ? ' me' : '');
+          const safeText = (m.text || '').replace(/'/g, "\\'");
+          div.onclick = (e) => { if (e.target.tagName !== 'IMG') setReply(m.sender || 'User', safeText || 'Ảnh'); };
+          div.innerHTML = `<div class="chat-sender"><span>${m.sender || 'User'}</span><span>${new Date(m.created_at).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'})}</span></div>${m.text ? `<div>${m.text}</div>` : ''}${m.image_url ? `<img src="${m.image_url}" loading="lazy" onclick="openLightbox('${m.image_url}')">` : ''}`;
+          box.appendChild(div);
+        });
+        box.scrollTop = box.scrollHeight;
+      } catch (e) {}
     }
 
     async function sendChat() {
       const sender = document.getElementById('chatSender').value.trim() || 'Guest';
       const textInp = document.getElementById('chatText'), imgInp = document.getElementById('chatImg');
-      const text = textInp.value.trim(), file = imgInp.files.item(0);
-      if (!text && !file) return;
+      const rawText = textInp.value.trim(), file = imgInp.files.item(0);
+      if (!rawText && !file) return;
+      const finalText = replyPrefix ? (replyPrefix + rawText) : rawText;
       const btn = document.getElementById('chatSendBtn'); btn.disabled = true;
       try {
         let imgUrl = file ? await uploadFileToCloud(file) : null;
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/messages`, { method: 'POST', headers: writeHeaders, body: JSON.stringify({ sender, text, image_url: imgUrl }) });
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/messages`, { method: 'POST', headers: writeHeaders, body: JSON.stringify({ sender, text: finalText, image_url: imgUrl }) });
         if (!res.ok) throw new Error(await res.text());
-        textInp.value = ''; imgInp.value = ''; showName('chatImg','chatImgLabel','🖼️');
+        textInp.value = ''; imgInp.value = ''; cancelReply(); onChatImgPicked();
         loadChat();
-      } catch (e) { alert(e.message); } finally { btn.disabled = false; }
+      } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; }
     }
 
     async function deleteItem(table, id, reloadFn) {
@@ -827,48 +903,90 @@
       await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, { method: 'DELETE', headers: writeHeaders });
       reloadFn(); checkStorageQuota();
     }
+
+    let pomoSeconds = 25 * 60, pomoTimer = null, isPomoRunning = false;
+    function updatePomoUI() {
+      const m = String(Math.floor(pomoSeconds / 60)).padStart(2, '0');
+      const s = String(pomoSeconds % 60).padStart(2, '0');
+      document.getElementById('pomoDisplay').textContent = `${m}:${s}`;
+    }
+    function setPomoMode(mins) {
+      clearInterval(pomoTimer); isPomoRunning = false;
+      pomoSeconds = mins * 60;
+      document.getElementById('pomoStartBtn').textContent = currentLang === 'ja' ? '▶ 開始' : '▶ Bắt đầu';
+      document.getElementById('pomoStatus').textContent = mins === 25 ? (currentLang === 'ja' ? '集中モード (25分)' : 'Tập trung (25 phút)') : (currentLang === 'ja' ? '休憩モード (5分)' : 'Nghỉ ngơi (5 phút)');
+      updatePomoUI();
+    }
+    function togglePomo() {
+      const btn = document.getElementById('pomoStartBtn');
+      if (isPomoRunning) { clearInterval(pomoTimer); isPomoRunning = false; btn.textContent = currentLang === 'ja' ? '▶ 再開' : '▶ Tiếp tục'; }
+      else {
+        isPomoRunning = true; btn.textContent = currentLang === 'ja' ? '⏸ 一時停止' : '⏸ Tạm dừng';
+        pomoTimer = setInterval(() => {
+          if (pomoSeconds > 0) { pomoSeconds--; updatePomoUI(); }
+          else { clearInterval(pomoTimer); isPomoRunning = false; btn.textContent = '▶'; speakText(currentLang === 'ja' ? '時間になりました！' : 'Đã hết giờ!'); alert('⏰ Hết giờ!'); }
+        }, 1000);
+      }
+    }
+
+    let todos = JSON.parse(localStorage.getItem('myspace_todos') || '[]');
+    function renderTodos() {
+      const list = document.getElementById('todoList'); list.innerHTML = '';
+      todos.forEach((item, i) => {
+        const row = document.createElement('div');
+        row.style = 'display:flex; justify-content:space-between; align-items:center; background:var(--bg-input); padding:8px 12px; border-radius:10px;';
+        row.innerHTML = `<span onclick="toggleTodo(${i})" style="cursor:pointer; flex:1; text-decoration:${item.done ? 'line-through' : 'none'}; opacity:${item.done ? 0.5 : 1};">${item.done ? '☑️' : '⬜'} ${item.text}</span><button onclick="delTodo(${i})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:700;">✕</button>`;
+        list.appendChild(row);
+      });
+    }
+    function addTodo() {
+      const inp = document.getElementById('todoInput');
+      if (!inp.value.trim()) return;
+      todos.unshift({ text: inp.value.trim(), done: false });
+      inp.value = ''; localStorage.setItem('myspace_todos', JSON.stringify(todos)); renderTodos();
+    }
+    function toggleTodo(i) { todos.at(i).done = !todos.at(i).done; localStorage.setItem('myspace_todos', JSON.stringify(todos)); renderTodos(); }
+    function delTodo(i) { todos.splice(i, 1); localStorage.setItem('myspace_todos', JSON.stringify(todos)); renderTodos(); }
+
+    document.getElementById('quickNoteArea').value = localStorage.getItem('myspace_quick_note') || '';
+    function saveQuickNote() {
+      localStorage.setItem('myspace_quick_note', document.getElementById('quickNoteArea').value);
+      const badge = document.getElementById('noteSavedBadge');
+      badge.textContent = currentLang === 'ja' ? '✓ 保存済' : '✓ Đã lưu';
+      setTimeout(() => badge.textContent = '', 1500);
+    }
     const dict = {
       vi: {
-        navVault: 'Kho ảnh AI', navLib: 'Tàng thư viện', navMusic: 'Kho nhạc', navChat: 'Phòng chat',
+        navVault: 'Kho ảnh AI', navLib: 'Tàng thư viện', navMusic: 'Kho nhạc', navChat: 'Phòng chat', navTools: 'Tiện ích',
         quota: '💾 Kho lưu trữ', bgBtn: '🖼️ Đổi ảnh nền',
-        vaultTitle: '🔒 Kho Ảnh AI & Tư liệu riêng', lockBtn: 'Khóa kho',
-        privateArea: 'Khu vực riêng tư', userPh: 'Tên tài khoản...', pinPh: 'Mã PIN bí mật...', unlockBtn: 'Mở kho của tôi',
-        searchPh: 'Mô tả ảnh bạn nhớ mang máng (VD: mèo vàng, bầu trời, code...)',
-        notePh: 'Ghi chú thêm (AI sẽ tự động phân tích & gắn nhãn ảnh cho bạn)...',
-        pickMedia: '📎 Chọn 1 hoặc nhiều ảnh/video', saveAiBtn: 'Lưu & Phân tích AI',
-        libTitle: '📚 Tàng thư viện', backBtn: '← Danh sách truyện',
-        bookTitlePh: 'Tên bộ truyện...', bookTagsPh: 'Tag thể loại (VD: Tiên hiệp, Hành động, Anime)',
-        bookSumPh: 'Tóm tắt cơ bản...', bookRevPh: 'Review & Đánh giá...',
-        bookFileLbl: '🖼️ Ảnh bìa / File đính kèm', bookSaveBtn: 'Tạo bộ truyện',
-        addChapTitle: '➕ Thêm chương / trang mới', chapTitlePh: 'Tên chương (VD: Chương 1)',
-        chapContPh: 'Dán nội dung chữ (hoặc để trống nếu đăng trang ảnh)...',
-        chapImgLbl: '🖼️ Hoặc chọn trang ảnh truyện', chapSaveBtn: 'Đăng chương',
-        musicTitle: '🎵 Kho nhạc & Playlist', songTitlePh: 'Tên bài hát...',
-        songPlPh: 'Tên Playlist (VD: Anime Chill, Nhạc đọc truyện, Remix)',
-        songYtPh: 'Dán link YouTube (Tốn 0MB dung lượng)...',
-        songFileLbl: '🎧 Hoặc tải file MP3 lên kho', songSaveBtn: 'Thêm bài hát',
-        chatTitle: '💬 Phòng chat', chatNamePh: 'Tên của bạn...', chatTextPh: 'Nhắn tin...', chatSendBtn: 'Gửi'
+        vaultTitle: '🔒 Kho Ảnh AI', privateArea: 'Khu vực riêng tư', userPh: 'Tên tài khoản...', pinPh: 'Mã PIN bí mật...', unlockBtn: 'Mở kho của tôi',
+        searchPh: 'Mô tả ảnh nhớ mang máng (VD: mèo vàng, bầu trời...)', notePh: 'Ghi chú thêm (AI tự động phân tích ảnh)...',
+        pickMedia: '📎 Chọn 1 hoặc nhiều ảnh/video', saveAiBtn: 'Lưu & AI quét',
+        libTitle: '📚 Tàng thư viện', backBtn: '← Danh sách',
+        bookTitlePh: 'Tên bộ truyện...', bookTagsPh: 'Tag thể loại (VD: Tiên hiệp, Anime)', bookSumPh: 'Tóm tắt cơ bản...', bookRevPh: 'Review & Đánh giá...',
+        bookFileLbl: '🖼️ Ảnh bìa / File', bookSaveBtn: 'Tạo truyện',
+        addChapTitle: '➕ Thêm chương / trang mới', chapTitlePh: 'Tên chương (VD: Chương 1)', chapContPh: 'Dán nội dung chữ (hoặc chọn trang ảnh)...',
+        chapImgLbl: '🖼️ Chọn trang ảnh', chapSaveBtn: 'Đăng chương',
+        musicTitle: '🎵 Kho nhạc', songTitlePh: 'Tên bài hát...', songPlPh: 'Tên Playlist (VD: Anime Chill, Remix)',
+        songYtPh: 'Dán link YouTube (Tốn 0MB)...', songFileLbl: '🎧 Hoặc file MP3', songSaveBtn: 'Thêm nhạc',
+        chatTitle: '💬 Phòng chat', chatNamePh: 'Tên bạn...', chatTextPh: 'Nhắn tin...', chatSendBtn: 'Gửi',
+        toolsTitle: '⏱️ Tập trung & Ghi chú', todoTitle: '✅ Việc cần làm', noteTitle: '📝 Ghi chú nháp (Tự lưu)'
       },
       ja: {
-        navVault: 'AIフォト保管庫', navLib: 'デジタル図書館', navMusic: '音楽ライブラリ', navChat: 'チャットルーム',
+        navVault: 'AIフォト庫', navLib: '図書館', navMusic: '音楽庫', navChat: 'チャット', navTools: 'ツール',
         quota: '💾 ストレージ容量', bgBtn: '🖼️ 背景画像を変更',
-        vaultTitle: '🔒 AIフォト保管庫・個人データ', lockBtn: 'ロックする',
-        privateArea: 'プライベートエリア', userPh: 'アカウント名...', pinPh: '暗証番号 (PIN)...', unlockBtn: 'ロック解除',
-        searchPh: '覚えている画像の特徴を入力（例：黄色い猫、空、コード...）',
-        notePh: 'メモを追加（AIが自動で画像を解析・タグ付けします）...',
-        pickMedia: '📎 画像・動画を選択（複数可）', saveAiBtn: '保存してAI解析',
-        libTitle: '📚 デジタル図書館', backBtn: '← 作品一覧に戻る',
-        bookTitlePh: '作品タイトル...', bookTagsPh: 'ジャンルタグ（例：ファンタジー、アクション、アニメ）',
-        bookSumPh: 'あらすじ・概要...', bookRevPh: 'レビュー・感想...',
-        bookFileLbl: '🖼️ 表紙画像・添付ファイル', bookSaveBtn: '作品を作成',
-        addChapTitle: '➕ 新しい話・ページを追加', chapTitlePh: '話数・タイトル（例：第1話）',
-        chapContPh: '本文を入力（画像ページを投稿する場合は空欄）...',
-        chapImgLbl: '🖼️ または漫画の画像ページを選択', chapSaveBtn: '投稿する',
-        musicTitle: '🎵 音楽＆プレイリスト', songTitlePh: '曲名...',
-        songPlPh: 'プレイリスト名（例：アニメChill、読書用BGM）',
-        songYtPh: 'YouTubeリンクを貼り付け（容量0MB）...',
-        songFileLbl: '🎧 またはMP3ファイルをアップロード', songSaveBtn: '曲を追加',
-        chatTitle: '💬 チャットルーム', chatNamePh: 'あなたの名前...', chatTextPh: 'メッセージを入力...', chatSendBtn: '送信'
+        vaultTitle: '🔒 AIフォト保管庫', privateArea: 'プライベートエリア', userPh: 'アカウント名...', pinPh: '暗証番号 (PIN)...', unlockBtn: 'ロック解除',
+        searchPh: '覚えている画像の特徴を入力（例：黄色い猫、空...）', notePh: 'メモを追加（AIが自動で画像を解析します）...',
+        pickMedia: '📎 画像・動画を選択（複数可）', saveAiBtn: '保存＆AI解析',
+        libTitle: '📚 デジタル図書館', backBtn: '← 一覧へ',
+        bookTitlePh: '作品タイトル...', bookTagsPh: 'ジャンルタグ（例：ファンタジー、アニメ）', bookSumPh: 'あらすじ・概要...', bookRevPh: 'レビュー・感想...',
+        bookFileLbl: '🖼️ 表紙・添付ファイル', bookSaveBtn: '作品を作成',
+        addChapTitle: '➕ 新しい話・ページを追加', chapTitlePh: '話数・タイトル（例：第1話）', chapContPh: '本文を入力（画像ページの場合は空欄）...',
+        chapImgLbl: '🖼️ 画像ページを選択', chapSaveBtn: '投稿する',
+        musicTitle: '🎵 音楽＆プレイリスト', songTitlePh: '曲名...', songPlPh: 'プレイリスト名（例：アニメChill、BGM）',
+        songYtPh: 'YouTubeリンク（容量0MB）...', songFileLbl: '🎧 またはMP3ファイル', songSaveBtn: '曲を追加',
+        chatTitle: '💬 チャットルーム', chatNamePh: '名前...', chatTextPh: 'メッセージ...', chatSendBtn: '送信',
+        toolsTitle: '⏱️ 集中タイマー＆メモ', todoTitle: '✅ やることリスト', noteTitle: '📝 クイックメモ（自動保存）'
       }
     };
 
@@ -881,16 +999,13 @@
 
       const t = dict[lang];
       const navs = document.querySelectorAll('.sidebar .nav-text');
-      if (navs.length >= 4) {
-        navs.item(0).textContent = t.navVault;
-        navs.item(1).textContent = t.navLib;
-        navs.item(2).textContent = t.navMusic;
-        navs.item(3).textContent = t.navChat;
+      if (navs.length >= 5) {
+        navs.item(0).textContent = t.navVault; navs.item(1).textContent = t.navLib;
+        navs.item(2).textContent = t.navMusic; navs.item(3).textContent = t.navChat; navs.item(4).textContent = t.navTools;
       }
       document.querySelector('.quota-details span').textContent = t.quota;
       document.getElementById('customBgBtn').textContent = t.bgBtn;
       if (!currentOwnerKey) document.getElementById('vaultHeaderTitle').textContent = t.vaultTitle;
-      document.getElementById('lockBtn').textContent = t.lockBtn;
       document.querySelector('#vaultLockScreen h3').textContent = t.privateArea;
       document.getElementById('vaultUser').placeholder = t.userPh;
       document.getElementById('pinInput').placeholder = t.pinPh;
@@ -925,10 +1040,14 @@
       document.getElementById('chatSender').placeholder = t.chatNamePh;
       document.getElementById('chatText').placeholder = t.chatTextPh;
       document.getElementById('chatSendBtn').textContent = t.chatSendBtn;
+
+      document.getElementById('toolsHeaderTitle').textContent = t.toolsTitle;
+      document.getElementById('todoTitle').textContent = t.todoTitle;
+      document.getElementById('noteTitle').textContent = t.noteTitle;
       renderTags(); renderBooks(); renderPlaylists(); renderSongs();
     }
 
-    setLang(currentLang);
+    setLang(currentLang); renderTodos();
     checkStorageQuota(); loadLibrary(); loadSongs(); loadChat(); setInterval(loadChat, 2500);
   </script>
 </body>

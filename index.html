@@ -952,6 +952,32 @@
     }
 
     // BỘ DỊCH GOM KHỐI CHỐNG SPAM REQUEST (KHÔNG BAO GIỜ BỊ LỖI FAILED TO FETCH)
+        // BỘ BIÊN TẬP CHUYÊN BIỆT CHO TRUYỆN TRUNG CONVERT (GIỮ NGUYÊN XƯNG HÔ & TÊN RIÊNG)
+    function editChineseConvert(text) {
+      return text
+        // Sửa cấu trúc câu bị ngược đặc trưng của máy dịch Trung -> Việt
+        .replace(/đem ([^,.\n]{1,25}) (đánh bại|giết chết|thu vào|đặt ở|ném ra|đẩy ra|kéo lại|bắt lấy)/gi, '$2 $1')
+        .replace(/tại ([^,.\n]{1,25}) (bên trong|bên ngoài|trên|dưới|trước mặt|sau lưng)/gi, 'ở $2 $1')
+        .replace(/cùng (hắn|nàng|ta|ngươi|y|lão giả|thiếu niên|nữ tử) (nói chuyện|trò chuyện|chiến đấu|đi cùng|gặp mặt)/gi, '$2 với $1')
+        .replace(/hướng (hắn|nàng|ta|ngươi|y|phía trước|bên ngoài) (đi tới|nhìn lại|quát lớn|vung kiếm|lao tới)/gi, '$2 về phía $1')
+        .replace(/bị (hắn|nàng|y|đối phương) một (chưởng|kiếm|cước|đao|quyền)/gi, 'trúng một $2 của $1')
+        // Làm mượt các từ nối thô cứng của convert
+        .replace(/\bhắn ta\b/gi, 'hắn')
+        .replace(/\bnàng ta\b/gi, 'nàng')
+        .replace(/\bnhất định phải\b/gi, 'phải')
+        .replace(/\bvô cùng chi\b/gi, 'vô cùng')
+        .replace(/\bthập phần\b/gi, 'vô cùng')
+        .replace(/\bphi thường\b/gi, 'rất')
+        .replace(/\blập tức liền\b/gi, 'lập tức')
+        .replace(/\btrong nháy mắt liền\b/gi, 'trong nháy mắt')
+        .replace(/\bkhông khỏi\b/gi, 'bất giác')
+        .replace(/\bcười lạnh một tiếng\b/gi, 'cười khẩy')
+        .replace(/\bsắc mặt đại biến\b/gi, 'biến sắc')
+        .replace(/\bhít sâu một hơi\b/gi, 'hít một hơi thật sâu')
+        .replace(/\s+\n/g, '\n')
+        .replace(/\n{3,}/g, '\n\n');
+    }
+
     async function translateCurrentChapter() {
       const textEl = document.getElementById('currentChapText');
       const rawText = textEl.textContent.trim();
@@ -960,60 +986,51 @@
 
       const btn = document.getElementById('aiTransBtn');
       btn.disabled = true;
-      btn.textContent = '⏳ Đang dịch...';
+      btn.textContent = '⏳ Đang biên tập...';
 
       try {
+        let result = '';
         const targetLang = (currentLang === 'ja') ? 'ja' : 'vi';
-        const isViet = /[ăâđêôơưàảãáạằẳẵắặầẩẫấậèẻẽéẹềểễếệìỉĩíịòỏõóọồổỗốộờởỡớợùủũúụừửữứựỳỷỹýỵ]/i.test(originalChapterCache);
-        const srcLang = isViet ? 'vi' : 'ja';
 
-        // Gom văn bản thành từng khối tối đa 420 ký tự để giảm số lần gọi API xuống còn 2-3 lần
-        const paragraphs = originalChapterCache.split('\n').filter(p => p.trim());
-        const blocks = [];
-        let currentBlock = '';
-        for (const p of paragraphs) {
-          if ((currentBlock + '\n' + p).length > 420) {
-            if (currentBlock) blocks.push(currentBlock);
-            currentBlock = p.slice(0, 420);
-          } else {
-            currentBlock = currentBlock ? (currentBlock + '\n' + p) : p;
-          }
-        }
-        if (currentBlock) blocks.push(currentBlock);
-
-        const translatedBlocks = [];
-        for (let i = 0; i < Math.min(blocks.length, 8); i++) {
-          const blk = blocks.at(i);
-          if (srcLang === targetLang) {
-            // Nếu cùng ngôn ngữ: dịch qua trung gian tiếng Anh để làm mượt câu văn
-            const r1 = await fetch('https://translated.net' + encodeURIComponent(blk) + '&langpair=vi|en');
-            const d1 = r1.ok ? await r1.json() : null;
-            const mid = d1?.responseData?.translatedText || '';
-            if (mid) {
-              const r2 = await fetch('https://translated.net' + encodeURIComponent(mid.slice(0, 450)) + '&langpair=en|vi');
-              const d2 = r2.ok ? await r2.json() : null;
-              translatedBlocks.push(d2?.responseData?.translatedText || blk);
-            } else translatedBlocks.push(blk);
-          } else {
-            const res = await fetch('https://translated.net' + encodeURIComponent(blk) + '&langpair=' + srcLang + '|' + targetLang);
-            const data = res.ok ? await res.json() : null;
-            translatedBlocks.push(data?.responseData?.translatedText || blk);
+        // 1. Nếu có mã Gemini chuẩn AIza -> Dùng AI biên tập chuyên sâu giữ nguyên xưng hô Hán Việt
+        if (GEMINI_KEY && GEMINI_KEY.startsWith('AIza')) {
+          const prompt = (targetLang === 'ja')
+            ? "以下の中国小説の文章を、キャラクターの口調や固有名詞を保ったまま自然な日本語に翻訳してください：\n\n" + originalChapterCache
+            : "Bạn là biên tập viên truyện Trung Quốc chuyên nghiệp. Hãy biên tập lại đoạn truyện convert sau sang tiếng Việt thật mượt mà, trôi chảy, giữ nguyên toàn bộ tên riêng, thuật ngữ tiên hiệp/kiếm hiệp và đại từ nhân xưng (ta/ngươi, huynh/muội, hắn/nàng...):\n\n" + originalChapterCache;
+          const res = await fetch('https://googleapis.com' + GEMINI_KEY, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            result = data.candidates?.at(0)?.content?.parts?.at(0)?.text || '';
           }
         }
 
-        const finalResult = translatedBlocks.join('\n\n').trim();
-        if (finalResult) {
-          textEl.textContent = finalResult;
+        // 2. Nếu chưa dùng Gemini AI -> Chạy bộ biên tập convert Hán-Việt trực tiếp (Giữ 100% nghĩa gốc & xưng hô)
+        if (!result && targetLang === 'vi') {
+          result = editChineseConvert(originalChapterCache);
+        }
+
+        // 3. Nếu đang bật giao diện tiếng Nhật -> Dịch sang tiếng Nhật qua Lingva
+        if (!result && targetLang === 'ja') {
+          const res = await fetch('https://lingva.ml' + encodeURIComponent(originalChapterCache.slice(0, 1500)));
+          const data = res.ok ? await res.json() : null;
+          result = data?.translation || '';
+        }
+
+        if (result) {
+          textEl.textContent = result.trim();
           document.getElementById('origChapBtn').style.display = 'inline-block';
         }
       } catch (e) {
-        alert('Tạm thời máy chủ dịch đang bận, bạn thử lại sau vài giây nhé!');
+        alert('Lỗi biên tập: ' + e.message);
       } finally {
         btn.disabled = false;
         btn.textContent = '✨ Dịch mượt';
       }
     }
-
     function restoreOriginalChapter() {
       if (originalChapterCache) {
         document.getElementById('currentChapText').textContent = originalChapterCache;

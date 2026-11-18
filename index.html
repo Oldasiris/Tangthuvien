@@ -795,8 +795,9 @@
         loadSongs();
       } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].songSaveBtn; }
     }
+    let isYtExpanded = false;
 
-        function playSongAt(idx) {
+    function playSongAt(idx) {
       if (filteredSongs.length === 0) return;
       currentSongIdx = (idx + filteredSongs.length) % filteredSongs.length;
       const song = filteredSongs.at(currentSongIdx);
@@ -808,23 +809,46 @@
       document.getElementById('miniSongTitle').textContent = '🎵 ' + song.title;
       document.getElementById('miniPlayBtn').textContent = '⏸';
       isMusicPlaying = true;
+      isYtExpanded = false;
 
       const isYt = song.audio_url && (song.audio_url.startsWith('YT:') || song.audio_url.includes('youtu'));
       if (isYt) {
         const ytId = getCleanYtId(song.audio_url);
         const embedUrl = 'https://youtube.com' + ytId + '?autoplay=1';
-        ytBox.style.cssText = 'position:fixed; top:68px; right:14px; width:270px; height:178px; z-index:999; border-radius:12px; overflow:hidden; box-shadow:0 10px 28px rgba(0,0,0,0.75); border:1.5px solid var(--primary); background:#000; display:flex; flex-direction:column;';
-        ytBox.innerHTML = `
-          <div id="ytDragHandle" style="background:var(--bg-card); padding:5px 10px; display:flex; justify-content:space-between; align-items:center; cursor:move; user-select:none; border-bottom:1px solid var(--border);">
-            <span style="font-size:0.75rem; font-weight:600; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">✥ ${song.title}</span>
-            <button onclick="closeYtPlayer()" style="background:#ef4444; color:#fff; border:none; border-radius:6px; padding:2px 8px; font-size:0.75rem; font-weight:700; cursor:pointer; flex-shrink:0;">✕ Tắt</button>
-          </div>
-          <iframe style="flex:1; width:100%; border:none;" src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        `;
+        
+        ytBox.style.cssText = 'position:fixed; top:68px; right:14px; width:270px; height:178px; z-index:999; border-radius:12px; overflow:hidden; box-shadow:0 10px 28px rgba(0,0,0,0.75); border:1.5px solid var(--primary); background:#000; display:flex; flex-direction:column; transition: width 0.2s, height 0.2s;';
+        ytBox.innerHTML = 
+          '<div id="ytDragHandle" style="background:var(--bg-card); padding:5px 8px; display:flex; justify-content:space-between; align-items:center; cursor:move; user-select:none; border-bottom:1px solid var(--border); gap:6px;">' +
+            '<span style="font-size:0.75rem; font-weight:600; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">✥ ' + song.title + '</span>' +
+            '<div style="display:flex; gap:4px; flex-shrink:0;">' +
+              '<button id="ytZoomBtn" onclick="toggleYtZoom()" style="background:var(--bg-input); color:var(--text-main); border:1px solid var(--border); border-radius:6px; padding:2px 7px; font-size:0.75rem; cursor:pointer;" title="Phóng to / Thu nhỏ">⤢</button>' +
+              '<button onclick="closeYtPlayer()" style="background:#ef4444; color:#fff; border:none; border-radius:6px; padding:2px 8px; font-size:0.75rem; font-weight:700; cursor:pointer;">✕</button>' +
+            '</div>' +
+          '</div>' +
+          '<iframe style="flex:1; width:100%; border:none;" src="' + embedUrl + '" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+          
         makeYtDraggable(ytBox, document.getElementById('ytDragHandle'));
       } else {
         mp3.src = song.audio_url;
         mp3.play();
+      }
+    }
+
+    function toggleYtZoom() {
+      const ytBox = document.getElementById('ytHiddenBox');
+      const zoomBtn = document.getElementById('ytZoomBtn');
+      if (!ytBox) return;
+      isYtExpanded = !isYtExpanded;
+      if (isYtExpanded) {
+        ytBox.style.width = '560px';
+        ytBox.style.height = '345px';
+        ytBox.style.maxWidth = '92vw';
+        ytBox.style.maxHeight = '70vh';
+        if (zoomBtn) zoomBtn.textContent = '⤡';
+      } else {
+        ytBox.style.width = '270px';
+        ytBox.style.height = '178px';
+        if (zoomBtn) zoomBtn.textContent = '⤢';
       }
     }
 
@@ -874,6 +898,7 @@
       handle.onmousedown = startDrag;
       handle.ontouchstart = startDrag;
     }
+
     
     function playNextSong() { if (filteredSongs.length > 0) playSongAt(currentSongIdx + 1); }
     let replyPrefix = '';

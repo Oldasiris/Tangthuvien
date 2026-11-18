@@ -288,11 +288,14 @@
         <div class="box" style="text-align:center;">
           <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:6px;" id="pomoStatus">Sẵn sàng tập trung</div>
           <div id="pomoDisplay" style="font-size:3rem; font-weight:700; color:var(--primary); letter-spacing:2px; margin:8px 0;">25:00</div>
-          <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+          <div style="display:flex; gap:6px; justify-content:center; align-items:center; flex-wrap:wrap;">
             <button class="btn" id="pomoStartBtn" onclick="togglePomo()">▶ Bắt đầu</button>
-            <button class="btn-outline" onclick="setPomoMode(25)">25m Học/Làm</button>
-            <button class="btn-outline" onclick="setPomoMode(5)">5m Nghỉ</button>
+            <button class="btn-outline" onclick="setPomoMode(25)">25m</button>
+            <button class="btn-outline" onclick="setPomoMode(5)">5m</button>
+            <input type="number" id="customPomoMins" min="1" max="300" placeholder="Phút..." style="width:72px; margin:0; padding:6px 8px; text-align:center;">
+            <button class="btn-outline" onclick="applyCustomPomo()">Đặt giờ</button>
           </div>
+
         </div>
         <div class="box">
           <h4 style="margin-bottom:10px; color:var(--primary);" id="todoTitle">✅ Việc cần làm</h4>
@@ -793,7 +796,7 @@
       } catch (e) { alert('Lỗi: ' + e.message); } finally { btn.disabled = false; btn.textContent = dict[currentLang].songSaveBtn; }
     }
 
-    function playSongAt(idx) {
+        function playSongAt(idx) {
       if (filteredSongs.length === 0) return;
       currentSongIdx = (idx + filteredSongs.length) % filteredSongs.length;
       const song = filteredSongs.at(currentSongIdx);
@@ -801,7 +804,7 @@
       const ytBox = document.getElementById('ytHiddenBox');
 
       mp3.pause(); mp3.src = ''; ytBox.innerHTML = '';
-      ytBox.style = 'width:0; height:0; overflow:hidden;';
+      ytBox.style.cssText = 'display:none;';
       document.getElementById('miniSongTitle').textContent = '🎵 ' + song.title;
       document.getElementById('miniPlayBtn').textContent = '⏸';
       isMusicPlaying = true;
@@ -809,15 +812,28 @@
       const isYt = song.audio_url && (song.audio_url.startsWith('YT:') || song.audio_url.includes('youtu'));
       if (isYt) {
         const ytId = getCleanYtId(song.audio_url);
-        ytBox.style = 'position:fixed; bottom:72px; right:14px; width:260px; height:150px; z-index:99; border-radius:12px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6); border:1px solid var(--primary); background:#000;';
+        const embedUrl = 'https://youtube.com' + ytId + '?autoplay=1';
+        ytBox.style.cssText = 'position:fixed; top:68px; right:14px; width:270px; height:178px; z-index:999; border-radius:12px; overflow:hidden; box-shadow:0 10px 28px rgba(0,0,0,0.75); border:1.5px solid var(--primary); background:#000; display:flex; flex-direction:column;';
         ytBox.innerHTML = `
-          <button onclick="toggleMiniPlay()" style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.75); color:#fff; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; z-index:10;">✕</button>
-          <iframe width="100%" height="100%" src="https://youtube.com{ytId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          <div id="ytDragHandle" style="background:var(--bg-card); padding:5px 10px; display:flex; justify-content:space-between; align-items:center; cursor:move; user-select:none; border-bottom:1px solid var(--border);">
+            <span style="font-size:0.75rem; font-weight:600; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">✥ ${song.title}</span>
+            <button onclick="closeYtPlayer()" style="background:#ef4444; color:#fff; border:none; border-radius:6px; padding:2px 8px; font-size:0.75rem; font-weight:700; cursor:pointer; flex-shrink:0;">✕ Tắt</button>
+          </div>
+          <iframe style="flex:1; width:100%; border:none;" src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
         `;
+        makeYtDraggable(ytBox, document.getElementById('ytDragHandle'));
       } else {
         mp3.src = song.audio_url;
         mp3.play();
       }
+    }
+
+    function closeYtPlayer() {
+      const ytBox = document.getElementById('ytHiddenBox');
+      ytBox.innerHTML = '';
+      ytBox.style.cssText = 'display:none;';
+      document.getElementById('miniPlayBtn').textContent = '▶';
+      isMusicPlaying = false;
     }
 
     function toggleMiniPlay() {
@@ -825,18 +841,40 @@
       if (currentSongIdx === -1) return;
       const song = filteredSongs.at(currentSongIdx);
       const mp3 = document.getElementById('mp3Player');
-      const ytBox = document.getElementById('ytHiddenBox');
 
       if (isMusicPlaying) {
-        if (song.audio_url.startsWith('YT:') || song.audio_url.includes('youtu')) {
-          ytBox.innerHTML = '';
-          ytBox.style = 'width:0; height:0; overflow:hidden;';
-        } else mp3.pause();
-        document.getElementById('miniPlayBtn').textContent = '▶';
-        isMusicPlaying = false;
+        if (song.audio_url.startsWith('YT:') || song.audio_url.includes('youtu')) closeYtPlayer();
+        else { mp3.pause(); document.getElementById('miniPlayBtn').textContent = '▶'; isMusicPlaying = false; }
       } else playSongAt(currentSongIdx);
     }
 
+    function makeYtDraggable(box, handle) {
+      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      const startDrag = (e) => {
+        if (e.target.tagName === 'BUTTON') return;
+        const clientX = e.touches ? e.touches.item(0).clientX : e.clientX;
+        const clientY = e.touches ? e.touches.item(0).clientY : e.clientY;
+        pos3 = clientX; pos4 = clientY;
+        document.onmouseup = endDrag; document.onmousemove = doDrag;
+        document.ontouchend = endDrag; document.ontouchmove = doDrag;
+      };
+      const doDrag = (e) => {
+        const clientX = e.touches ? e.touches.item(0).clientX : e.clientX;
+        const clientY = e.touches ? e.touches.item(0).clientY : e.clientY;
+        pos1 = pos3 - clientX; pos2 = pos4 - clientY;
+        pos3 = clientX; pos4 = clientY;
+        box.style.top = Math.max(10, box.offsetTop - pos2) + 'px';
+        box.style.left = Math.max(10, box.offsetLeft - pos1) + 'px';
+        box.style.right = 'auto';
+      };
+      const endDrag = () => {
+        document.onmouseup = null; document.onmousemove = null;
+        document.ontouchend = null; document.ontouchmove = null;
+      };
+      handle.onmousedown = startDrag;
+      handle.ontouchstart = startDrag;
+    }
+    
     function playNextSong() { if (filteredSongs.length > 0) playSongAt(currentSongIdx + 1); }
     let replyPrefix = '';
     function setReply(sender, text) {
@@ -911,6 +949,13 @@
       const s = String(pomoSeconds % 60).padStart(2, '0');
       document.getElementById('pomoDisplay').textContent = `${m}:${s}`;
     }
+        function applyCustomPomo() {
+      const val = parseInt(document.getElementById('customPomoMins').value, 10);
+      if (!val || val <= 0) return alert(currentLang === 'ja' ? '1分以上の数字を入力してください' : 'Hãy nhập số phút lớn hơn 0!');
+      setPomoMode(val);
+      document.getElementById('pomoStatus').textContent = currentLang === 'ja' ? `カスタムタイマー (${val}分)` : `Hẹn giờ tùy chỉnh (${val} phút)`;
+    }
+
     function setPomoMode(mins) {
       clearInterval(pomoTimer); isPomoRunning = false;
       pomoSeconds = mins * 60;
